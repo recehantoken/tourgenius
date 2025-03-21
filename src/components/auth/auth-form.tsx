@@ -20,6 +20,7 @@ const AuthForm = () => {
   });
   
   const [loading, setLoading] = useState(false);
+  const [debugMode, setDebugMode] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -59,8 +60,8 @@ const AuthForm = () => {
         navigate('/dashboard');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Authentication failed. Please try again.');
       console.error('Auth error:', error);
+      toast.error(error.message || 'Authentication failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -68,6 +69,46 @@ const AuthForm = () => {
 
   const toggleAuthMode = () => {
     setIsSignUp(!isSignUp);
+  };
+
+  // Quick login with test account
+  const handleTestAccount = async () => {
+    setLoading(true);
+    const testEmail = 'test@example.com';
+    const testPassword = 'testpassword123';
+    
+    try {
+      // First try to sign up a test account
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: testEmail,
+        password: testPassword,
+        options: {
+          data: {
+            full_name: 'Test User',
+          }
+        }
+      });
+      
+      if (signUpError && !signUpError.message.includes('already registered')) {
+        throw signUpError;
+      }
+      
+      // Then try to sign in with it
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: testEmail,
+        password: testPassword,
+      });
+      
+      if (signInError) throw signInError;
+      
+      toast.success('Logged in with test account successfully!');
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Test account error:', error);
+      toast.error(error.message || 'Test account login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -157,6 +198,40 @@ const AuthForm = () => {
           </p>
         </div>
       </form>
+
+      {/* Debug tools */}
+      <div className="mt-8 pt-6 border-t border-batik-gray/30">
+        <div className="flex justify-between items-center mb-4">
+          <button 
+            type="button" 
+            onClick={() => setDebugMode(!debugMode)}
+            className="text-xs text-gray-400 hover:text-white"
+          >
+            {debugMode ? 'Hide Debug' : 'Debug Tools'}
+          </button>
+          
+          {debugMode && (
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={handleTestAccount}
+              disabled={loading}
+              className="text-xs"
+            >
+              Create & Login with Test Account
+            </Button>
+          )}
+        </div>
+        
+        {debugMode && (
+          <div className="bg-batik-dark/70 p-3 rounded-md text-xs text-gray-300">
+            <p className="font-mono">Current auth status: {loading ? 'Loading...' : 'Idle'}</p>
+            <p className="font-mono mt-1">Mode: {isSignUp ? 'Sign Up' : 'Login'}</p>
+            <p className="font-mono mt-1 text-yellow-400">Tip: Create a test account to sign in immediately</p>
+          </div>
+        )}
+      </div>
     </GlassCard>
   );
 };
