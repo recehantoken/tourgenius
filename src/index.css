@@ -48,42 +48,42 @@
   }
 
   .dark {
-    --background: 222 47% 11%;
+    --background: 260 15% 10%;  /* Darker background with a hint of purple */
     --foreground: 210 40% 98%;
 
-    --card: 222 47% 11%;
+    --card: 260 15% 8%;  /* Darker card background */
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 47% 11%;
+    --popover: 260 15% 8%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 35 80% 50%;  /* Gold accent color inspired by Indonesian batik */
+    --primary-foreground: 260 15% 10%;
 
-    --secondary: 217 33% 17%;
+    --secondary: 260 15% 15%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217 33% 17%;
+    --muted: 260 15% 15%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 217 33% 17%;
+    --accent: 35 60% 45%;  /* Slightly darker gold as accent */
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 224 76% 48%;
+    --border: 260 15% 15%;
+    --input: 260 15% 15%;
+    --ring: 35 80% 50%;  /* Gold ring color */
 
-    --sidebar-background: 222 47% 11%;
+    --sidebar-background: 260 15% 8%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 217 33% 17%;
+    --sidebar-primary: 35 80% 50%;
+    --sidebar-primary-foreground: 260 15% 10%;
+    --sidebar-accent: 260 15% 15%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 224 76% 48%;
+    --sidebar-border: 260 15% 15%;
+    --sidebar-ring: 35 80% 50%;
   }
 }
 
@@ -104,7 +104,7 @@
 }
 
 .dark .glass {
-  @apply bg-black/50 backdrop-blur-md border border-white/10 shadow-lg;
+  @apply bg-batik-dark/70 backdrop-blur-md border border-white/10 shadow-lg;
 }
 
 /* Custom transitions */
@@ -155,4 +155,26 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-secondary/70;
+}
+
+/* Indonesian batik pattern inspired overlay */
+.batik-overlay {
+  position: relative;
+}
+
+.batik-overlay::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.4;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.dark .batik-overlay::before {
+  opacity: 0.2;
 }

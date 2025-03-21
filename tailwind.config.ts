@@ -62,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Indonesian black cultural inspired colors
+				batik: {
+					dark: '#221F26',      // Dark charcoal inspired by Batik patterns
+					black: '#000000e6',   // Rich black with slight transparency
+					gray: '#403E43',      // Charcoal gray found in traditional textiles
+					accent: '#5E4F46',    // Dark brown from traditional Indonesian wood carvings
+					gold: '#D4AF37',      // Gold accent used in ceremonial objects
 				}
 			},
 			borderRadius: {
