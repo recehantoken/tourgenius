@@ -20,7 +20,7 @@ const AuthForm = () => {
   });
   
   const [loading, setLoading] = useState(false);
-  const [debugMode, setDebugMode] = useState(false);
+  const [debugMode, setDebugMode] = useState(true); // Set debug mode to true by default for easier testing
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -199,13 +199,13 @@ const AuthForm = () => {
         </div>
       </form>
 
-      {/* Debug tools */}
+      {/* Debug tools - making more prominent for easier access */}
       <div className="mt-8 pt-6 border-t border-batik-gray/30">
         <div className="flex justify-between items-center mb-4">
           <button 
             type="button" 
             onClick={() => setDebugMode(!debugMode)}
-            className="text-xs text-gray-400 hover:text-white"
+            className="text-xs text-gray-300 hover:text-white"
           >
             {debugMode ? 'Hide Debug' : 'Debug Tools'}
           </button>
@@ -228,7 +228,7 @@ const AuthForm = () => {
           <div className="bg-batik-dark/70 p-3 rounded-md text-xs text-gray-300">
             <p className="font-mono">Current auth status: {loading ? 'Loading...' : 'Idle'}</p>
             <p className="font-mono mt-1">Mode: {isSignUp ? 'Sign Up' : 'Login'}</p>
-            <p className="font-mono mt-1 text-yellow-400">Tip: Create a test account to sign in immediately</p>
+            <p className="font-mono mt-1 text-yellow-400">Tip: Use the "Create & Login with Test Account" button to sign in immediately</p>
           </div>
         )}
       </div>
