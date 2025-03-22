@@ -6,7 +6,7 @@ import GlassCard from '../ui/glass-card';
 import AuthFormHeader from './auth-form-header';
 import AuthFormFields from './auth-form-fields';
 import AuthFormActions from './auth-form-actions';
-import AuthDebugPanel from './auth-debug-panel';
+
 import { AuthFormData, signUpUser, signInUser, createAndSignInTestAccount } from './auth-utils';
 
 const AuthForm = () => {
@@ -85,13 +85,7 @@ const AuthForm = () => {
         />
       </form>
 
-      <AuthDebugPanel 
-        debugMode={debugMode}
-        setDebugMode={setDebugMode}
-        loading={loading}
-        isSignUp={isSignUp}
-        handleTestAccount={handleTestAccount}
-      />
+
     </GlassCard>
   );
 };
