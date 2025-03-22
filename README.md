@@ -66,7 +66,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 For inquiries or support:
 
 - **Email**: [support@tourgenius.com](mailto:support@tourgenius.com)
-- **GitHub**: [https://github.com/yourusername/tourgenius](https://github.com/yourusername/tourgenius)
+- **GitHub**: [https://github.com/hoed/tourgenius](https://github.com/hoed/tourgenius)
 
 ---
 
