@@ -90,6 +90,7 @@ const Dashboard = () => {
   }
 
   return (
+    <div>
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in">
         <div className="flex items-center justify-between">
@@ -213,9 +214,10 @@ const Dashboard = () => {
           </GlassCard>
         </div>
       </div>
-      <Footer />
+      
     </DashboardLayout>
-    
+    <Footer />
+    </div>
   );
 };
 
