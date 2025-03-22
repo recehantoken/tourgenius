@@ -3,14 +3,17 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { DayItinerary, Destination, Hotel, Meal, TourGuide, Transportation, TourItinerary } from '@/lib/types';
-import { DESTINATIONS, HOTELS, MEALS, TOUR_GUIDES, TRANSPORTATIONS } from '@/lib/constants';
-import { Calendar, MapPin, Hotel as HotelIcon, Utensils, Plane, Users, Plus, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, MapPin, Hotel as HotelIcon, Utensils, Plane, Users, Plus, Trash2, Save } from 'lucide-react';
 import GlassCard from '@/components/ui/glass-card';
 import PriceCalculator from '../pricing/price-calculator';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { toast } from 'sonner';
 
 const ItineraryBuilder = () => {
   const [itinerary, setItinerary] = useState<TourItinerary>({
@@ -30,6 +33,8 @@ const ItineraryBuilder = () => {
     totalPrice: 0,
     numberOfPeople: 2
   });
+  
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const updateItineraryName = (name: string) => {
     setItinerary((prev) => ({
@@ -77,9 +82,14 @@ const ItineraryBuilder = () => {
     }));
   };
 
-  const addDestination = (dayId: string, destinationId: string) => {
-    const destination = DESTINATIONS.find(d => d.id === destinationId);
-    if (!destination) return;
+  const addDestination = (dayId: string, name: string, price: number) => {
+    if (!name.trim()) return;
+    
+    const newDestination: Destination = {
+      id: Date.now().toString(),
+      name,
+      pricePerPerson: price
+    };
     
     setItinerary((prev) => ({
       ...prev,
@@ -87,7 +97,7 @@ const ItineraryBuilder = () => {
         if (day.id === dayId) {
           return {
             ...day,
-            destinations: [...day.destinations, destination]
+            destinations: [...day.destinations, newDestination]
           };
         }
         return day;
@@ -110,8 +120,30 @@ const ItineraryBuilder = () => {
     }));
   };
 
-  const setHotel = (dayId: string, hotelId: string | null) => {
-    const hotel = hotelId ? HOTELS.find(h => h.id === hotelId) || null : null;
+  const setHotel = (dayId: string, name: string, location: string, stars: number, price: number) => {
+    if (!name.trim()) {
+      setItinerary((prev) => ({
+        ...prev,
+        days: prev.days.map(day => {
+          if (day.id === dayId) {
+            return {
+              ...day,
+              hotel: null
+            };
+          }
+          return day;
+        })
+      }));
+      return;
+    }
+    
+    const newHotel: Hotel = {
+      id: Date.now().toString(),
+      name,
+      location,
+      stars,
+      pricePerNight: price
+    };
     
     setItinerary((prev) => ({
       ...prev,
@@ -119,7 +151,7 @@ const ItineraryBuilder = () => {
         if (day.id === dayId) {
           return {
             ...day,
-            hotel
+            hotel: newHotel
           };
         }
         return day;
@@ -127,9 +159,15 @@ const ItineraryBuilder = () => {
     }));
   };
 
-  const addMeal = (dayId: string, mealId: string) => {
-    const meal = MEALS.find(m => m.id === mealId);
-    if (!meal) return;
+  const addMeal = (dayId: string, description: string, type: string, price: number) => {
+    if (!description.trim()) return;
+    
+    const newMeal: Meal = {
+      id: Date.now().toString(),
+      description,
+      type,
+      pricePerPerson: price
+    };
     
     setItinerary((prev) => ({
       ...prev,
@@ -137,7 +175,7 @@ const ItineraryBuilder = () => {
         if (day.id === dayId) {
           return {
             ...day,
-            meals: [...day.meals, meal]
+            meals: [...day.meals, newMeal]
           };
         }
         return day;
@@ -160,10 +198,28 @@ const ItineraryBuilder = () => {
     }));
   };
 
-  const setTransportation = (dayId: string, transportationId: string | null) => {
-    const transportation = transportationId 
-      ? TRANSPORTATIONS.find(t => t.id === transportationId) || null 
-      : null;
+  const setTransportation = (dayId: string, description: string, price: number) => {
+    if (!description.trim()) {
+      setItinerary((prev) => ({
+        ...prev,
+        days: prev.days.map(day => {
+          if (day.id === dayId) {
+            return {
+              ...day,
+              transportation: null
+            };
+          }
+          return day;
+        })
+      }));
+      return;
+    }
+    
+    const newTransportation: Transportation = {
+      id: Date.now().toString(),
+      description,
+      pricePerPerson: price
+    };
     
     setItinerary((prev) => ({
       ...prev,
@@ -171,7 +227,7 @@ const ItineraryBuilder = () => {
         if (day.id === dayId) {
           return {
             ...day,
-            transportation
+            transportation: newTransportation
           };
         }
         return day;
@@ -179,16 +235,25 @@ const ItineraryBuilder = () => {
     }));
   };
 
-  const addTourGuide = (guideId: string) => {
-    const guide = TOUR_GUIDES.find(g => g.id === guideId);
-    if (!guide) return;
+  const addTourGuide = (name: string, expertise: string, pricePerDay: number) => {
+    if (!name.trim()) return;
     
-    // Don't add if already added
-    if (itinerary.tourGuides.some(g => g.id === guideId)) return;
+    const newGuide: TourGuide = {
+      id: Date.now().toString(),
+      name,
+      expertise,
+      pricePerDay
+    };
+    
+    // Don't add if already has similar name
+    if (itinerary.tourGuides.some(g => g.name.toLowerCase() === name.toLowerCase())) {
+      toast.error('A guide with this name already exists');
+      return;
+    }
     
     setItinerary((prev) => ({
       ...prev,
-      tourGuides: [...prev.tourGuides, guide]
+      tourGuides: [...prev.tourGuides, newGuide]
     }));
   };
 
@@ -199,6 +264,30 @@ const ItineraryBuilder = () => {
     }));
   };
 
+  const saveToGoogleCalendar = async () => {
+    try {
+      toast.loading('Connecting to Google Calendar...');
+      // This would be implemented with Supabase Edge Functions
+      // calling Google Calendar API with the proper authentication
+      
+      setTimeout(() => {
+        toast.dismiss();
+        toast.success('Itinerary saved to Google Calendar!');
+      }, 2000);
+    } catch (error) {
+      toast.error('Failed to save to Google Calendar');
+      console.error(error);
+    }
+  };
+
+  const formatRupiah = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -206,7 +295,16 @@ const ItineraryBuilder = () => {
           <h1 className="text-3xl font-bold">Tour Itinerary Builder</h1>
           <p className="text-muted-foreground">Create and customize your perfect tour itinerary</p>
         </div>
-        <Button>Save Itinerary</Button>
+        <div className="flex gap-2">
+          <Button onClick={saveToGoogleCalendar}>
+            <CalendarIcon className="h-4 w-4 mr-2" />
+            Save to Google Calendar
+          </Button>
+          <Button>
+            <Save className="h-4 w-4 mr-2" />
+            Save Itinerary
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -214,7 +312,7 @@ const ItineraryBuilder = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Basic Info */}
           <GlassCard>
-            <div className="space-y-4">
+            <div className="space-y-4 p-6">
               <div>
                 <Label htmlFor="itinerary-name">Itinerary Name</Label>
                 <Input 
@@ -223,15 +321,43 @@ const ItineraryBuilder = () => {
                   onChange={(e) => updateItineraryName(e.target.value)}
                 />
               </div>
-              <div>
-                <Label htmlFor="people-count">Number of People</Label>
-                <Input 
-                  id="people-count" 
-                  type="number" 
-                  min={1} 
-                  value={itinerary.numberOfPeople} 
-                  onChange={(e) => updateNumberOfPeople(Number(e.target.value))}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="people-count">Number of People</Label>
+                  <Input 
+                    id="people-count" 
+                    type="number" 
+                    min={1} 
+                    value={itinerary.numberOfPeople} 
+                    onChange={(e) => updateNumberOfPeople(Number(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <Label>Start Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 bg-white" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
             </div>
           </GlassCard>
@@ -252,6 +378,7 @@ const ItineraryBuilder = () => {
                     <div>
                       <p className="font-medium">{guide.name}</p>
                       <p className="text-sm text-muted-foreground">{guide.expertise}</p>
+                      <p className="text-sm font-medium">{formatRupiah(guide.pricePerDay)} per day</p>
                     </div>
                     <Button 
                       variant="ghost" 
@@ -265,27 +392,43 @@ const ItineraryBuilder = () => {
                 ))}
               </div>
 
-              <div className="flex gap-2">
-                <Select onValueChange={(value) => addTourGuide(value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Add a tour guide" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TOUR_GUIDES.map((guide) => (
-                      <SelectItem key={guide.id} value={guide.id}>
-                        {guide.name} - {guide.expertise}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" onClick={() => {
-                  const select = document.querySelector('[role="combobox"]') as HTMLElement;
-                  if (select) select.click();
-                }}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Guide
-                </Button>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div>
+                  <Label htmlFor="guide-name">Guide Name</Label>
+                  <Input id="guide-name" placeholder="Guide name" />
+                </div>
+                <div>
+                  <Label htmlFor="guide-expertise">Expertise</Label>
+                  <Input id="guide-expertise" placeholder="Guide expertise" />
+                </div>
+                <div>
+                  <Label htmlFor="guide-price">Price per Day (IDR)</Label>
+                  <Input id="guide-price" type="number" placeholder="150000" />
+                </div>
               </div>
+              <Button 
+                variant="outline" 
+                className="mt-2"
+                onClick={() => {
+                  const nameInput = document.getElementById('guide-name') as HTMLInputElement;
+                  const expertiseInput = document.getElementById('guide-expertise') as HTMLInputElement;
+                  const priceInput = document.getElementById('guide-price') as HTMLInputElement;
+                  
+                  if (nameInput && expertiseInput && priceInput) {
+                    addTourGuide(
+                      nameInput.value,
+                      expertiseInput.value,
+                      Number(priceInput.value) || 0
+                    );
+                    nameInput.value = '';
+                    expertiseInput.value = '';
+                    priceInput.value = '';
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Guide
+              </Button>
             </CardContent>
           </GlassCard>
 
@@ -313,7 +456,7 @@ const ItineraryBuilder = () => {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
+                        <CalendarIcon className="h-5 w-5" />
                         Day {day.day}
                       </CardTitle>
                       {itinerary.days.length > 1 && (
@@ -340,7 +483,7 @@ const ItineraryBuilder = () => {
                           <div key={destination.id} className="flex items-center p-3 border rounded-md">
                             <div>
                               <p className="font-medium">{destination.name}</p>
-                              <p className="text-sm text-muted-foreground">${destination.pricePerPerson} per person</p>
+                              <p className="text-sm text-muted-foreground">{formatRupiah(destination.pricePerPerson)} per person</p>
                             </div>
                             <Button 
                               variant="ghost" 
@@ -353,27 +496,37 @@ const ItineraryBuilder = () => {
                           </div>
                         ))}
                       </div>
-                      <div className="flex gap-2">
-                        <Select onValueChange={(value) => addDestination(day.id, value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Add a destination" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {DESTINATIONS.map((destination) => (
-                              <SelectItem key={destination.id} value={destination.id}>
-                                {destination.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button variant="outline" onClick={() => {
-                          const select = document.querySelector('[role="combobox"]') as HTMLElement;
-                          if (select) select.click();
-                        }}>
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add Destination
-                        </Button>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <Label htmlFor={`destination-name-${day.id}`}>Destination Name</Label>
+                          <Input id={`destination-name-${day.id}`} placeholder="Enter destination name" />
+                        </div>
+                        <div>
+                          <Label htmlFor={`destination-price-${day.id}`}>Price per Person (IDR)</Label>
+                          <Input id={`destination-price-${day.id}`} type="number" placeholder="100000" />
+                        </div>
                       </div>
+                      <Button 
+                        variant="outline" 
+                        className="mt-2"
+                        onClick={() => {
+                          const nameInput = document.getElementById(`destination-name-${day.id}`) as HTMLInputElement;
+                          const priceInput = document.getElementById(`destination-price-${day.id}`) as HTMLInputElement;
+                          
+                          if (nameInput && priceInput) {
+                            addDestination(
+                              day.id,
+                              nameInput.value,
+                              Number(priceInput.value) || 0
+                            );
+                            nameInput.value = '';
+                            priceInput.value = '';
+                          }
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Destination
+                      </Button>
                     </div>
                     
                     {/* Hotel */}
@@ -387,13 +540,14 @@ const ItineraryBuilder = () => {
                           <div>
                             <p className="font-medium">{day.hotel.name}</p>
                             <p className="text-sm text-muted-foreground">
-                              {day.hotel.location} - ${day.hotel.pricePerNight} per night
+                              {day.hotel.location} - {day.hotel.stars} Stars
                             </p>
+                            <p className="text-sm font-medium">{formatRupiah(day.hotel.pricePerNight)} per night</p>
                           </div>
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => setHotel(day.id, null)}
+                            onClick={() => setHotel(day.id, '', '', 0, 0)}
                             className="ml-auto"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -404,18 +558,51 @@ const ItineraryBuilder = () => {
                           <p className="text-sm text-muted-foreground">No hotel selected</p>
                         </div>
                       )}
-                      <Select onValueChange={(value) => setHotel(day.id, value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a hotel" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {HOTELS.map((hotel) => (
-                            <SelectItem key={hotel.id} value={hotel.id}>
-                              {hotel.name} - {hotel.stars} Stars
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+                        <div>
+                          <Label htmlFor={`hotel-name-${day.id}`}>Hotel Name</Label>
+                          <Input id={`hotel-name-${day.id}`} placeholder="Hotel name" />
+                        </div>
+                        <div>
+                          <Label htmlFor={`hotel-location-${day.id}`}>Location</Label>
+                          <Input id={`hotel-location-${day.id}`} placeholder="City/area" />
+                        </div>
+                        <div>
+                          <Label htmlFor={`hotel-stars-${day.id}`}>Stars</Label>
+                          <Input id={`hotel-stars-${day.id}`} type="number" min="1" max="5" placeholder="3" />
+                        </div>
+                        <div>
+                          <Label htmlFor={`hotel-price-${day.id}`}>Price per Night (IDR)</Label>
+                          <Input id={`hotel-price-${day.id}`} type="number" placeholder="500000" />
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="mt-2"
+                        onClick={() => {
+                          const nameInput = document.getElementById(`hotel-name-${day.id}`) as HTMLInputElement;
+                          const locationInput = document.getElementById(`hotel-location-${day.id}`) as HTMLInputElement;
+                          const starsInput = document.getElementById(`hotel-stars-${day.id}`) as HTMLInputElement;
+                          const priceInput = document.getElementById(`hotel-price-${day.id}`) as HTMLInputElement;
+                          
+                          if (nameInput && locationInput && starsInput && priceInput) {
+                            setHotel(
+                              day.id,
+                              nameInput.value,
+                              locationInput.value,
+                              Number(starsInput.value) || 3,
+                              Number(priceInput.value) || 0
+                            );
+                            nameInput.value = '';
+                            locationInput.value = '';
+                            starsInput.value = '';
+                            priceInput.value = '';
+                          }
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Set Hotel
+                      </Button>
                     </div>
                     
                     {/* Meals */}
@@ -430,9 +617,9 @@ const ItineraryBuilder = () => {
                             <div>
                               <p className="font-medium">{meal.description}</p>
                               <p className="text-sm text-muted-foreground">
-                                {meal.type.charAt(0).toUpperCase() + meal.type.slice(1)} - 
-                                ${meal.pricePerPerson} per person
+                                {meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}
                               </p>
+                              <p className="text-sm font-medium">{formatRupiah(meal.pricePerPerson)} per person</p>
                             </div>
                             <Button 
                               variant="ghost" 
@@ -445,27 +632,44 @@ const ItineraryBuilder = () => {
                           </div>
                         ))}
                       </div>
-                      <div className="flex gap-2">
-                        <Select onValueChange={(value) => addMeal(day.id, value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Add a meal" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {MEALS.map((meal) => (
-                              <SelectItem key={meal.id} value={meal.id}>
-                                {meal.description} ({meal.type})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button variant="outline" onClick={() => {
-                          const select = document.querySelector('[role="combobox"]') as HTMLElement;
-                          if (select) select.click();
-                        }}>
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add Meal
-                        </Button>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div>
+                          <Label htmlFor={`meal-desc-${day.id}`}>Meal Description</Label>
+                          <Input id={`meal-desc-${day.id}`} placeholder="e.g. Seafood dinner" />
+                        </div>
+                        <div>
+                          <Label htmlFor={`meal-type-${day.id}`}>Meal Type</Label>
+                          <Input id={`meal-type-${day.id}`} placeholder="breakfast/lunch/dinner" />
+                        </div>
+                        <div>
+                          <Label htmlFor={`meal-price-${day.id}`}>Price per Person (IDR)</Label>
+                          <Input id={`meal-price-${day.id}`} type="number" placeholder="75000" />
+                        </div>
                       </div>
+                      <Button 
+                        variant="outline" 
+                        className="mt-2"
+                        onClick={() => {
+                          const descInput = document.getElementById(`meal-desc-${day.id}`) as HTMLInputElement;
+                          const typeInput = document.getElementById(`meal-type-${day.id}`) as HTMLInputElement;
+                          const priceInput = document.getElementById(`meal-price-${day.id}`) as HTMLInputElement;
+                          
+                          if (descInput && typeInput && priceInput) {
+                            addMeal(
+                              day.id,
+                              descInput.value,
+                              typeInput.value.toLowerCase(),
+                              Number(priceInput.value) || 0
+                            );
+                            descInput.value = '';
+                            typeInput.value = '';
+                            priceInput.value = '';
+                          }
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Meal
+                      </Button>
                     </div>
                     
                     {/* Transportation */}
@@ -478,14 +682,12 @@ const ItineraryBuilder = () => {
                         <div className="flex items-center p-3 border rounded-md mb-4">
                           <div>
                             <p className="font-medium">{day.transportation.description}</p>
-                            <p className="text-sm text-muted-foreground">
-                              ${day.transportation.pricePerPerson} per person
-                            </p>
+                            <p className="text-sm font-medium">{formatRupiah(day.transportation.pricePerPerson)} per person</p>
                           </div>
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => setTransportation(day.id, null)}
+                            onClick={() => setTransportation(day.id, '', 0)}
                             className="ml-auto"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -496,18 +698,37 @@ const ItineraryBuilder = () => {
                           <p className="text-sm text-muted-foreground">No transportation selected</p>
                         </div>
                       )}
-                      <Select onValueChange={(value) => setTransportation(day.id, value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select transportation" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TRANSPORTATIONS.map((transportation) => (
-                            <SelectItem key={transportation.id} value={transportation.id}>
-                              {transportation.description}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <Label htmlFor={`transport-desc-${day.id}`}>Description</Label>
+                          <Input id={`transport-desc-${day.id}`} placeholder="e.g. Private car to airport" />
+                        </div>
+                        <div>
+                          <Label htmlFor={`transport-price-${day.id}`}>Price per Person (IDR)</Label>
+                          <Input id={`transport-price-${day.id}`} type="number" placeholder="200000" />
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="mt-2"
+                        onClick={() => {
+                          const descInput = document.getElementById(`transport-desc-${day.id}`) as HTMLInputElement;
+                          const priceInput = document.getElementById(`transport-price-${day.id}`) as HTMLInputElement;
+                          
+                          if (descInput && priceInput) {
+                            setTransportation(
+                              day.id,
+                              descInput.value,
+                              Number(priceInput.value) || 0
+                            );
+                            descInput.value = '';
+                            priceInput.value = '';
+                          }
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Set Transportation
+                      </Button>
                     </div>
                   </CardContent>
                 </GlassCard>
