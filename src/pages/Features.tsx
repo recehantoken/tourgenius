@@ -12,6 +12,7 @@ const Features = () => {
   ];
 
   return (
+    <div>
     <div className="min-h-screen bg-gray-100 p-6">
       <Navbar />
       <div className="container mx-auto">
@@ -32,7 +33,9 @@ const Features = () => {
           ))}
         </div>
       </div>
-      <Footer />
+      
+    </div>
+    <Footer />
     </div>
   );
 };
