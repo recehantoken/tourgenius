@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,16 +12,22 @@ import ItineraryPage from "./pages/dashboard/itinerary";
 import InvoicesPage from "./pages/dashboard/invoices";
 import CustomersPage from "./pages/dashboard/customers";
 import NotFound from "./pages/NotFound";
+import Features from "./pages/Features";
+import Testimonials from "./pages/Testimonials";
+import Pricing from "./pages/Pricing";
+import HelpCenter from "./pages/HelpCenter";
+import ContactUs from "./pages/ContactUs";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy";
 
 const queryClient = new QueryClient();
 
-// Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setIsAuthenticated(!!session);
@@ -30,7 +35,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // Check if user is already authenticated
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
       setLoading(false);
@@ -63,8 +67,15 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/help-center" element={<HelpCenter />} />
+          <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
           
-          {/* Protected Dashboard Routes */}
           <Route 
             path="/dashboard" 
             element={
@@ -98,7 +109,6 @@ const App = () => (
             } 
           />
           
-          {/* 404 Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
