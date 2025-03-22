@@ -63,13 +63,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Indonesian black cultural inspired colors
+				// Enhanced Indonesian black cultural inspired colors
 				batik: {
-					dark: '#221F26',      // Dark charcoal inspired by Batik patterns
+					dark: '#121114',      // Darker charcoal for deeper contrast
 					black: '#000000e6',   // Rich black with slight transparency
-					gray: '#403E43',      // Charcoal gray found in traditional textiles
-					accent: '#5E4F46',    // Dark brown from traditional Indonesian wood carvings
-					gold: '#D4AF37',      // Gold accent used in ceremonial objects
+					gray: '#2A282D',      // Darker charcoal gray for UI elements
+					accent: '#433B34',    // Dark brown from traditional Indonesian wood carvings
+					gold: '#F2CB5C',      // Brighter gold accent for better visibility
 				}
 			},
 			borderRadius: {
@@ -120,6 +120,10 @@ export default {
 				'slide-in-left': 'slide-in-left 0.5s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
 				'float': 'float 3s ease-in-out infinite'
+			},
+			backgroundImage: {
+				'auth-pattern': "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+				'gradient-radial': 'radial-gradient(circle, var(--tw-gradient-stops))',
 			}
 		}
 	},

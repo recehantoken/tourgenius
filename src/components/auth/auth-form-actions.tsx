@@ -13,19 +13,19 @@ const AuthFormActions = ({ isSignUp, loading, toggleAuthMode }: AuthFormActionsP
     <>
       <Button 
         type="submit" 
-        className="w-full bg-primary hover:bg-primary/90" 
+        className="w-full bg-gradient-to-r from-batik-gold to-primary hover:opacity-90 text-batik-dark font-semibold" 
         disabled={loading}
       >
         {loading ? 'Processing...' : isSignUp ? 'Create Account' : 'Log In'}
       </Button>
 
       <div className="text-center mt-4">
-        <p className="text-sm text-gray-300">
+        <p className="text-sm text-gray-400">
           {isSignUp ? 'Already have an account?' : 'Don\'t have an account?'}
           <button
             type="button"
             onClick={toggleAuthMode}
-            className="ml-1 text-primary hover:underline focus:outline-none"
+            className="ml-1 text-batik-gold hover:underline focus:outline-none"
           >
             {isSignUp ? 'Log In' : 'Sign Up'}
           </button>
