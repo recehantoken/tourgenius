@@ -1,6 +1,6 @@
 # TourGenius
 
-**Your Travel Companion** 🌍✈️
+**Travel Agent Companion** 🌍✈️
 
 ## Live Demo
 
@@ -8,7 +8,7 @@ Explore the live application: [TourGenius](https://tourgenius.vercel.app/)
 
 ## Overview
 
-**TourGenius** leverages to assist travelers in planning seamless journeys. From personalized itineraries to insightful destination information, TourGenius ensures a smarter travel experience.
+**TourGenius** leverages to assist Travel Agent in planning seamless journeys. From personalized itineraries to insightful destination information, TourGenius ensures a smarter travel experience.
 
 ## Features
 
