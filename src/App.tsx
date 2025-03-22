@@ -11,6 +11,7 @@ import Auth from "./pages/auth";
 import Dashboard from "./pages/dashboard/index";
 import ItineraryPage from "./pages/dashboard/itinerary";
 import InvoicesPage from "./pages/dashboard/invoices";
+import CustomersPage from "./pages/dashboard/customers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -85,6 +86,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <InvoicesPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/customers" 
+            element={
+              <ProtectedRoute>
+                <CustomersPage />
               </ProtectedRoute>
             } 
           />

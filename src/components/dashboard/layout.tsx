@@ -11,6 +11,7 @@ import {
   Menu, 
   Settings, 
   User,
+  Users,
   X 
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -67,6 +68,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { path: '/dashboard', label: 'Dashboard', icon: <Home className="h-5 w-5" /> },
     { path: '/dashboard/itinerary', label: 'Itinerary', icon: <Calendar className="h-5 w-5" /> },
     { path: '/dashboard/invoices', label: 'Invoices', icon: <FileText className="h-5 w-5" /> },
+    { path: '/dashboard/customers', label: 'Customers', icon: <Users className="h-5 w-5" /> },
     { path: '/dashboard/settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
   ];
   
