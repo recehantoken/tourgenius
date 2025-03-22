@@ -1,5 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import Navbar from '@/components/landing/navbar';
+import Footer from '@/components/landing/footer'; // Adjust path if needed
 
 const Testimonials = () => {
   const testimonials = [
@@ -21,24 +23,28 @@ const Testimonials = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="container mx-auto">
-        <h1 className="text-4xl font-bold text-amber-700 mb-8 text-center">Testimonials</h1>
-        <p className="text-gray-600 mb-12 text-center max-w-2xl mx-auto">
-          Discover how TourGenius empowers travel professionals to streamline operations and elevate client experiences.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="bg-white border border-gray-200 shadow-md">
-              <CardContent className="pt-6">
-                <p className="text-gray-600 italic mb-4">"{testimonial.text}"</p>
-                <p className="text-amber-600 font-semibold">{testimonial.name}</p>
-                <p className="text-gray-500 text-sm">{testimonial.role}</p>
-              </CardContent>
-            </Card>
-          ))}
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <Navbar />
+      <main className="flex-1 p-6">
+        <div className="container mx-auto">
+          <h1 className="text-4xl font-bold text-amber-700 mb-8 text-center">Testimonials</h1>
+          <p className="text-gray-600 mb-12 text-center max-w-2xl mx-auto">
+            Discover how TourGenius empowers travel professionals to streamline operations and elevate client experiences.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="bg-white border border-gray-200 shadow-md">
+                <CardContent className="pt-6">
+                  <p className="text-gray-600 italic mb-4">"{testimonial.text}"</p>
+                  <p className="text-amber-600 font-semibold">{testimonial.name}</p>
+                  <p className="text-gray-500 text-sm">{testimonial.role}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 };

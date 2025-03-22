@@ -1,5 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Navbar from '@/components/landing/navbar';
+import Footer from '@/components/landing/footer';
 
 const Features = () => {
   const features = [
@@ -11,6 +13,7 @@ const Features = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      <Navbar />
       <div className="container mx-auto">
         <h1 className="text-4xl font-bold text-amber-700 mb-8 text-center">Features</h1>
         <p className="text-gray-600 mb-12 text-center max-w-2xl mx-auto">
@@ -29,6 +32,7 @@ const Features = () => {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
