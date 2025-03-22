@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -33,16 +32,36 @@ const Navbar = () => {
         </Link>
 
         <nav className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="font-medium hover:text-primary transition-colors">
+          <Link 
+            to="/" 
+            className={`font-medium hover:text-primary transition-colors ${
+              isScrolled ? 'text-black' : ''
+            }`}
+          >
             Home
           </Link>
-          <Link to="/#features" className="font-medium hover:text-primary transition-colors">
+          <Link 
+            to="/#features" 
+            className={`font-medium hover:text-primary transition-colors ${
+              isScrolled ? 'text-black' : ''
+            }`}
+          >
             Features
           </Link>
-          <Link to="/#testimonials" className="font-medium hover:text-primary transition-colors">
+          <Link 
+            to="/#testimonials" 
+            className={`font-medium hover:text-primary transition-colors ${
+              isScrolled ? 'text-black' : ''
+            }`}
+          >
             Testimonials
           </Link>
-          <Link to="/#pricing" className="font-medium hover:text-primary transition-colors">
+          <Link 
+            to="/#pricing" 
+            className={`font-medium hover:text-primary transition-colors ${
+              isScrolled ? 'text-black' : ''
+            }`}
+          >
             Pricing
           </Link>
         </nav>
@@ -70,28 +89,36 @@ const Navbar = () => {
           <nav className="flex flex-col space-y-4">
             <Link
               to="/"
-              className="font-medium hover:text-primary transition-colors"
+              className={`font-medium hover:text-primary transition-colors ${
+                isScrolled ? 'text-black' : ''
+              }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Home
             </Link>
             <Link
               to="/#features"
-              className="font-medium hover:text-primary transition-colors"
+              className={`font-medium hover:text-primary transition-colors ${
+                isScrolled ? 'text-black' : ''
+              }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Features
             </Link>
             <Link
               to="/#testimonials"
-              className="font-medium hover:text-primary transition-colors"
+              className={`font-medium hover:text-primary transition-colors ${
+                isScrolled ? 'text-black' : ''
+              }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Testimonials
             </Link>
             <Link
               to="/#pricing"
-              className="font-medium hover:text-primary transition-colors"
+              className={`font-medium hover:text-primary transition-colors ${
+                isScrolled ? 'text-black' : ''
+              }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Pricing
