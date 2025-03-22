@@ -213,7 +213,9 @@ const Dashboard = () => {
           </GlassCard>
         </div>
       </div>
+      <Footer />
     </DashboardLayout>
+    
   );
 };
 
