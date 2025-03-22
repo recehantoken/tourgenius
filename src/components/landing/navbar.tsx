@@ -68,7 +68,9 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center space-x-4">
           <Link to="/auth">
-            <Button variant="outline">Log In</Button>
+            <Button variant="outline" className="text-blue-600 hover:text-blue-700">
+              Log In
+            </Button>
           </Link>
           <Link to="/auth?signup=true">
             <Button>Sign Up</Button>
@@ -125,7 +127,7 @@ const Navbar = () => {
             </Link>
             <div className="pt-4 flex flex-col space-y-3">
               <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full text-blue-600 hover:text-blue-700">
                   Log In
                 </Button>
               </Link>
