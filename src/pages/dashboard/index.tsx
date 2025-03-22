@@ -94,7 +94,7 @@ const Dashboard = () => {
       <div className="space-y-8 animate-fade-in">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Dashboard</h1>
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-100">Dashboard</h1>
             <p className="text-muted-foreground">Welcome back to your tour planning dashboard</p>
           </div>
           <Link to="/dashboard/itinerary">
