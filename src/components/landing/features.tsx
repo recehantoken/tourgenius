@@ -40,7 +40,9 @@ const Features = () => {
     <section id="features" className="py-24 bg-accent">
       <div className="container mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-black">Powerful Features for Tour Professionals</h2>
+          <h2 className="text-3xl font-bold text-blue-600 text-center mb-8">
+            Powerful Features for Tour Professionals
+          </h2>
           <p className="text-black">
             All the tools you need to create exceptional travel experiences for your clients
           </p>
