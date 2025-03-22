@@ -9,7 +9,6 @@ import GlassCard from '@/components/ui/glass-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import Footer from '@/components/landing/footer';
 import { formatRupiah } from '@/lib/utils';
 
 const Dashboard = () => {
@@ -90,7 +89,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div>
+
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in">
         <div className="flex items-center justify-between">
@@ -216,8 +215,7 @@ const Dashboard = () => {
       </div>
       
     </DashboardLayout>
-    <Footer />
-    </div>
+
   );
 };
 
