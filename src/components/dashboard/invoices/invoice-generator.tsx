@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { Calendar, Download, FileText, Printer, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import GlassCard from '@/components/ui/glass-card';
 import { useLocation, useNavigate } from 'react-router-dom';
+import jsPDF from 'jspdf';
 
 interface InvoiceGeneratorProps {
   itinerary?: TourItinerary;
@@ -18,6 +19,7 @@ const InvoiceGenerator = ({ itinerary: propItinerary }: InvoiceGeneratorProps) =
   const location = useLocation();
   const navigate = useNavigate();
   const [itinerary, setItinerary] = useState<TourItinerary | undefined>(propItinerary);
+  const invoiceRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     if (location.state?.itinerary && !propItinerary) {
@@ -166,9 +168,104 @@ const InvoiceGenerator = ({ itinerary: propItinerary }: InvoiceGeneratorProps) =
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(20);
+    doc.text('Invoice', 20, 20);
+    doc.setFontSize(12);
+    doc.text(`#INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`, 20, 30);
+    doc.text('TourGenius', 150, 20, { align: 'right' });
+    doc.text('Premium Tour Planning', 150, 30, { align: 'right' });
+
+    doc.setFontSize(10);
+    doc.text('Bill To:', 20, 50);
+    doc.text(invoice.customerName || 'Customer Name', 20, 60);
+    doc.text(invoice.customerEmail || 'customer@example.com', 20, 70);
+    doc.text('Invoice Details:', 150, 50, { align: 'right' });
+    doc.text(`Date: ${invoice.date || new Date().toISOString().split('T')[0]}`, 150, 60, { align: 'right' });
+    doc.text(`Due Date: ${invoice.dueDate || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`, 150, 70, { align: 'right' });
+    doc.text(`Status: ${invoice.status || 'Draft'}`, 150, 80, { align: 'right' });
+
+    doc.setFontSize(12);
+    doc.text('Invoice Items:', 20, 100);
+    let yPos = 110;
+    doc.setFontSize(10);
+    doc.text('Description', 20, yPos);
+    doc.text('Qty', 120, yPos, { align: 'right' });
+    doc.text('Unit Price', 150, yPos, { align: 'right' });
+    doc.text('Total', 180, yPos, { align: 'right' });
+    yPos += 5;
+    doc.line(20, yPos, 190, yPos);
+    yPos += 10;
+
+    invoiceItems.forEach(item => {
+      doc.text(item.description, 20, yPos);
+      doc.text(item.quantity.toString(), 120, yPos, { align: 'right' });
+      doc.text(formatRupiah(item.unitPrice), 150, yPos, { align: 'right' });
+      doc.text(formatRupiah(item.total), 180, yPos, { align: 'right' });
+      yPos += 10;
+    });
+
+    yPos += 10;
+    doc.text(`Subtotal: ${formatRupiah(subtotal)}`, 150, yPos, { align: 'right' });
+    yPos += 10;
+    doc.text(`Tax (5%): ${formatRupiah(tax)}`, 150, yPos, { align: 'right' });
+    yPos += 10;
+    doc.line(150, yPos - 5, 190, yPos - 5);
+    yPos += 10;
+    doc.setFontSize(12);
+    doc.text(`Total: ${formatRupiah(total)}`, 150, yPos, { align: 'right' });
+
+    yPos += 20;
+    doc.setFontSize(8);
+    doc.text('Thank you for your business!', 105, yPos, { align: 'center' });
+    doc.text('Payment is due within 14 days of receipt of this invoice.', 105, yPos + 5, { align: 'center' });
+
+    doc.save(`invoice-${invoice.customerName || 'customer'}-${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success('PDF downloaded successfully!');
+  };
+
+  const handlePrint = () => {
+    if (invoiceRef.current) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Invoice</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                .invoice { max-width: 800px; margin: auto; }
+                .header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+                .details { display: flex; justify-content: space-between; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+                th { font-weight: bold; }
+                .right { text-align: right; }
+                .totals { max-width: 300px; margin-left: auto; }
+                .footer { text-align: center; font-size: 12px; margin-top: 20px; }
+              </style>
+            </head>
+            <body>
+              <div class="invoice">
+                ${invoiceRef.current.innerHTML}
+              </div>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+        toast.success('Print dialog opened!');
+      } else {
+        toast.error('Failed to open print window. Please allow pop-ups.');
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-8">
-      {/* Header - Matching CustomerManagement and ItineraryBuilder */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-100 p-6 rounded-xl border border-gray-200 shadow-md">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-clip-text text-transparent animate-gradient">
@@ -190,7 +287,6 @@ const InvoiceGenerator = ({ itinerary: propItinerary }: InvoiceGeneratorProps) =
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Invoice Details */}
         <div className="lg:col-span-1 space-y-6">
           <GlassCard className="bg-white border border-gray-200 shadow-md">
             <CardHeader>
@@ -271,20 +367,20 @@ const InvoiceGenerator = ({ itinerary: propItinerary }: InvoiceGeneratorProps) =
           
           <GlassCard className="bg-white border border-gray-200 shadow-md">
             <CardContent className="pt-6">
-              <h3 className="font-medium text-amber-700 mb-2">Invoice Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <h3 className="font-medium text-amber-700 mb-4">Invoice Actions</h3>
+              <div className="flex flex-col space-y-3">
                 <Button 
                   variant="outline" 
-                  size="sm" 
                   className="w-full border-amber-400/50 text-amber-600 hover:bg-amber-400/10"
+                  onClick={handleDownloadPDF}
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Download PDF
                 </Button>
                 <Button 
                   variant="outline" 
-                  size="sm" 
                   className="w-full border-amber-400/50 text-amber-600 hover:bg-amber-400/10"
+                  onClick={handlePrint}
                 >
                   <Printer className="h-4 w-4 mr-2" />
                   Print
@@ -294,10 +390,9 @@ const InvoiceGenerator = ({ itinerary: propItinerary }: InvoiceGeneratorProps) =
           </GlassCard>
         </div>
 
-        {/* Invoice Preview */}
         <div className="lg:col-span-2">
           <GlassCard className="max-w-4xl mx-auto bg-white border border-gray-200 shadow-md">
-            <CardContent className="p-8">
+            <CardContent className="p-8" ref={invoiceRef}>
               <div className="flex justify-between items-start mb-8">
                 <div>
                   <h2 className="text-2xl font-bold text-amber-700">Invoice</h2>
