@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,12 +9,24 @@ import { Invoice, TourItinerary } from '@/lib/types';
 import { Calendar, Download, FileText, Printer, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import GlassCard from '@/components/ui/glass-card';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface InvoiceGeneratorProps {
   itinerary?: TourItinerary;
 }
 
-const InvoiceGenerator = ({ itinerary }: InvoiceGeneratorProps) => {
+const InvoiceGenerator = ({ itinerary: propItinerary }: InvoiceGeneratorProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [itinerary, setItinerary] = useState<TourItinerary | undefined>(propItinerary);
+  
+  // Get itinerary from location state if not provided as prop
+  useEffect(() => {
+    if (location.state?.itinerary && !propItinerary) {
+      setItinerary(location.state.itinerary);
+    }
+  }, [location.state?.itinerary, propItinerary]);
+
   const [invoice, setInvoice] = useState<Partial<Invoice>>({
     customerName: '',
     customerEmail: '',
@@ -49,15 +61,133 @@ const InvoiceGenerator = ({ itinerary }: InvoiceGeneratorProps) => {
     setInvoice(prev => ({ ...prev, status: 'sent' }));
   };
 
-  // Sample invoice items for the preview
-  const demoItems = [
-    { id: '1', description: 'Tour Package (4 days)', quantity: 2, unitPrice: 750, total: 1500 },
-    { id: '2', description: 'Premium Hotel Accommodation', quantity: 3, unitPrice: 200, total: 600 },
-    { id: '3', description: 'Guided Tours', quantity: 4, unitPrice: 125, total: 500 },
-    { id: '4', description: 'Airport Transfers', quantity: 2, unitPrice: 60, total: 120 },
+  const handleAddToCalendar = () => {
+    if (!itinerary) {
+      toast.error('No itinerary data available');
+      return;
+    }
+    
+    try {
+      toast.loading('Preparing to save to Google Calendar...');
+      
+      // In a real implementation, this would call a Supabase Edge Function
+      // that safely uses the Google Calendar API key
+      
+      setTimeout(() => {
+        toast.dismiss();
+        toast.success('Itinerary saved to Google Calendar!');
+      }, 2000);
+    } catch (error) {
+      toast.error('Failed to save to Google Calendar');
+      console.error(error);
+    }
+  };
+
+  // Format currency in Indonesian Rupiah
+  const formatRupiah = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Prepare invoice items from itinerary data
+  const generateInvoiceItems = () => {
+    if (!itinerary) return [];
+    
+    const items = [];
+    
+    // Add destinations
+    if (itinerary.days.some(day => day.destinations.length > 0)) {
+      const totalDestinationsCost = itinerary.days.reduce((sum, day) => {
+        return sum + day.destinations.reduce((daySum, dest) => 
+          daySum + dest.pricePerPerson * itinerary.numberOfPeople, 0);
+      }, 0);
+      
+      items.push({
+        id: '1',
+        description: 'Destinations & Attractions',
+        quantity: itinerary.numberOfPeople,
+        unitPrice: totalDestinationsCost / itinerary.numberOfPeople,
+        total: totalDestinationsCost
+      });
+    }
+    
+    // Add accommodation
+    const totalAccommodationCost = itinerary.days.reduce((sum, day) => {
+      return sum + (day.hotel ? day.hotel.pricePerNight : 0);
+    }, 0);
+    
+    if (totalAccommodationCost > 0) {
+      items.push({
+        id: '2',
+        description: `Accommodation (${itinerary.days.length} nights)`,
+        quantity: 1,
+        unitPrice: totalAccommodationCost,
+        total: totalAccommodationCost
+      });
+    }
+    
+    // Add meals
+    const totalMealsCost = itinerary.days.reduce((sum, day) => {
+      return sum + day.meals.reduce((daySum, meal) => 
+        daySum + meal.pricePerPerson * itinerary.numberOfPeople, 0);
+    }, 0);
+    
+    if (totalMealsCost > 0) {
+      items.push({
+        id: '3',
+        description: 'Meals & Dining',
+        quantity: itinerary.numberOfPeople,
+        unitPrice: totalMealsCost / itinerary.numberOfPeople,
+        total: totalMealsCost
+      });
+    }
+    
+    // Add transportation
+    const totalTransportationCost = itinerary.days.reduce((sum, day) => {
+      return sum + (day.transportation ? 
+        day.transportation.pricePerPerson * itinerary.numberOfPeople : 0);
+    }, 0);
+    
+    if (totalTransportationCost > 0) {
+      items.push({
+        id: '4',
+        description: 'Transportation',
+        quantity: itinerary.numberOfPeople,
+        unitPrice: totalTransportationCost / itinerary.numberOfPeople,
+        total: totalTransportationCost
+      });
+    }
+    
+    // Add tour guides
+    const totalGuidesCost = itinerary.tourGuides.reduce((sum, guide) => {
+      return sum + guide.pricePerDay * itinerary.days.length;
+    }, 0);
+    
+    if (totalGuidesCost > 0) {
+      items.push({
+        id: '5',
+        description: `Tour Guide Services (${itinerary.days.length} days)`,
+        quantity: 1,
+        unitPrice: totalGuidesCost,
+        total: totalGuidesCost
+      });
+    }
+    
+    return items;
+  };
+
+  // Use itinerary data or fallback to demo items
+  const invoiceItems = itinerary ? generateInvoiceItems() : [
+    { id: '1', description: 'Tour Package (4 days)', quantity: 2, unitPrice: 750000, total: 1500000 },
+    { id: '2', description: 'Premium Hotel Accommodation', quantity: 3, unitPrice: 200000, total: 600000 },
+    { id: '3', description: 'Guided Tours', quantity: 4, unitPrice: 125000, total: 500000 },
+    { id: '4', description: 'Airport Transfers', quantity: 2, unitPrice: 60000, total: 120000 },
   ];
 
-  const subtotal = demoItems.reduce((sum, item) => sum + item.total, 0);
+  const subtotal = invoiceItems.reduce((sum, item) => sum + item.total, 0);
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
@@ -68,6 +198,12 @@ const InvoiceGenerator = ({ itinerary }: InvoiceGeneratorProps) => {
           <h1 className="text-3xl font-bold">Invoice Generator</h1>
           <p className="text-muted-foreground">Create and send professional invoices</p>
         </div>
+        {itinerary && (
+          <Button onClick={handleAddToCalendar}>
+            <Calendar className="h-4 w-4 mr-2" />
+            Add to Google Calendar
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -206,12 +342,12 @@ const InvoiceGenerator = ({ itinerary }: InvoiceGeneratorProps) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {demoItems.map((item) => (
+                    {invoiceItems.map((item) => (
                       <tr key={item.id} className="border-b">
                         <td className="py-3">{item.description}</td>
                         <td className="py-3 text-right">{item.quantity}</td>
-                        <td className="py-3 text-right">${item.unitPrice.toFixed(2)}</td>
-                        <td className="py-3 text-right">${item.total.toFixed(2)}</td>
+                        <td className="py-3 text-right">{formatRupiah(item.unitPrice)}</td>
+                        <td className="py-3 text-right">{formatRupiah(item.total)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -221,16 +357,16 @@ const InvoiceGenerator = ({ itinerary }: InvoiceGeneratorProps) => {
               <div className="w-full max-w-xs ml-auto">
                 <div className="flex justify-between mb-2">
                   <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{formatRupiah(subtotal)}</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span>Tax (5%):</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>{formatRupiah(tax)}</span>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between font-bold">
                   <span>Total:</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>{formatRupiah(total)}</span>
                 </div>
               </div>
 

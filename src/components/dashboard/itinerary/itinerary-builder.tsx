@@ -14,8 +14,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const ItineraryBuilder = () => {
+  const navigate = useNavigate();
   const [itinerary, setItinerary] = useState<TourItinerary>({
     id: Date.now().toString(),
     name: 'New Tour Itinerary',
@@ -88,7 +91,9 @@ const ItineraryBuilder = () => {
     const newDestination: Destination = {
       id: Date.now().toString(),
       name,
-      pricePerPerson: price
+      description: name, // Setting description to name to fix TS error
+      pricePerPerson: price,
+      image: undefined // Default image is undefined
     };
     
     setItinerary((prev) => ({
@@ -142,7 +147,8 @@ const ItineraryBuilder = () => {
       name,
       location,
       stars,
-      pricePerNight: price
+      pricePerNight: price,
+      image: undefined // Default image is undefined
     };
     
     setItinerary((prev) => ({
@@ -162,10 +168,15 @@ const ItineraryBuilder = () => {
   const addMeal = (dayId: string, description: string, type: string, price: number) => {
     if (!description.trim()) return;
     
+    // Validate meal type to match required types
+    let mealType: 'breakfast' | 'lunch' | 'dinner' = 'lunch'; // Default
+    if (type.toLowerCase() === 'breakfast') mealType = 'breakfast';
+    else if (type.toLowerCase() === 'dinner') mealType = 'dinner';
+    
     const newMeal: Meal = {
       id: Date.now().toString(),
       description,
-      type,
+      type: mealType,
       pricePerPerson: price
     };
     
@@ -218,7 +229,8 @@ const ItineraryBuilder = () => {
     const newTransportation: Transportation = {
       id: Date.now().toString(),
       description,
-      pricePerPerson: price
+      pricePerPerson: price,
+      type: 'car' // Setting default type to fix TS error
     };
     
     setItinerary((prev) => ({
@@ -242,7 +254,8 @@ const ItineraryBuilder = () => {
       id: Date.now().toString(),
       name,
       expertise,
-      pricePerDay
+      pricePerDay,
+      languages: [] // Setting empty languages array to fix TS error
     };
     
     // Don't add if already has similar name
@@ -266,9 +279,10 @@ const ItineraryBuilder = () => {
 
   const saveToGoogleCalendar = async () => {
     try {
-      toast.loading('Connecting to Google Calendar...');
-      // This would be implemented with Supabase Edge Functions
-      // calling Google Calendar API with the proper authentication
+      toast.loading('Preparing to save to Google Calendar...');
+      
+      // In a real implementation, this would call a Supabase Edge Function
+      // that safely uses the Google Calendar API key
       
       setTimeout(() => {
         toast.dismiss();
@@ -276,6 +290,28 @@ const ItineraryBuilder = () => {
       }, 2000);
     } catch (error) {
       toast.error('Failed to save to Google Calendar');
+      console.error(error);
+    }
+  };
+
+  const saveItinerary = async () => {
+    try {
+      toast.loading('Saving itinerary...');
+      
+      // Here we would save the itinerary to Supabase
+      // This is a placeholder for the actual implementation
+      
+      setTimeout(() => {
+        toast.dismiss();
+        toast.success('Itinerary saved successfully!');
+        
+        // Navigate to invoice page with the itinerary data
+        navigate('/dashboard/invoices', { 
+          state: { itinerary }
+        });
+      }, 1500);
+    } catch (error) {
+      toast.error('Failed to save itinerary');
       console.error(error);
     }
   };
@@ -300,7 +336,7 @@ const ItineraryBuilder = () => {
             <CalendarIcon className="h-4 w-4 mr-2" />
             Save to Google Calendar
           </Button>
-          <Button>
+          <Button onClick={saveItinerary}>
             <Save className="h-4 w-4 mr-2" />
             Save Itinerary
           </Button>

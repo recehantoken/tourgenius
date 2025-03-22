@@ -4,25 +4,26 @@ import DashboardLayout from '@/components/dashboard/layout';
 import ItineraryBuilder from '@/components/dashboard/itinerary/itinerary-builder';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { Toaster } from 'sonner';
 
 const ItineraryPage = () => {
   useEffect(() => {
-    // Check if Google API is loaded and initialize it
-    const loadGoogleCalendarAPI = () => {
+    // Load saved itineraries if available
+    const loadSavedItineraries = () => {
       try {
-        // This would be implemented with a proper Google Calendar auth flow
-        // and the API key would be stored securely in Supabase secrets
-        console.log('Google Calendar API initialized');
+        // This would load saved itineraries from Supabase
+        console.log('Loading saved itineraries');
       } catch (error) {
-        console.error('Failed to load Google Calendar API', error);
+        console.error('Failed to load saved itineraries', error);
       }
     };
 
-    loadGoogleCalendarAPI();
+    loadSavedItineraries();
   }, []);
 
   return (
     <DashboardLayout>
+      <Toaster position="top-center" richColors />
       <ItineraryBuilder />
     </DashboardLayout>
   );

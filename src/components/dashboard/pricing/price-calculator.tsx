@@ -79,8 +79,19 @@ const PriceCalculator = ({ itinerary }: PriceCalculatorProps) => {
   }, [itinerary]);
 
   const handleCreateInvoice = () => {
-    // In a real app, we'd save the itinerary and redirect to the invoice creation page
-    navigate('/dashboard/invoices');
+    // Navigate to the invoice creation page with the itinerary data
+    navigate('/dashboard/invoices', { 
+      state: { itinerary }
+    });
+  };
+
+  // Format currency in Indonesian Rupiah
+  const formatRupiah = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(amount);
   };
 
   return (
@@ -101,48 +112,48 @@ const PriceCalculator = ({ itinerary }: PriceCalculatorProps) => {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Destinations ({calculatedPrices.destinations.count})</span>
-              <span>${calculatedPrices.destinations.total.toFixed(2)}</span>
+              <span>{formatRupiah(calculatedPrices.destinations.total)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Accommodations ({calculatedPrices.hotels.count})</span>
-              <span>${calculatedPrices.hotels.total.toFixed(2)}</span>
+              <span>{formatRupiah(calculatedPrices.hotels.total)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Meals ({calculatedPrices.meals.count})</span>
-              <span>${calculatedPrices.meals.total.toFixed(2)}</span>
+              <span>{formatRupiah(calculatedPrices.meals.total)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Transportation ({calculatedPrices.transportation.count})</span>
-              <span>${calculatedPrices.transportation.total.toFixed(2)}</span>
+              <span>{formatRupiah(calculatedPrices.transportation.total)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Tour Guides ({calculatedPrices.guides.count})</span>
-              <span>${calculatedPrices.guides.total.toFixed(2)}</span>
+              <span>{formatRupiah(calculatedPrices.guides.total)}</span>
             </div>
           </div>
 
           <div className="border-t pt-2">
             <div className="flex justify-between">
               <span className="font-medium">Subtotal</span>
-              <span className="font-medium">${calculatedPrices.subtotal.toFixed(2)}</span>
+              <span className="font-medium">{formatRupiah(calculatedPrices.subtotal)}</span>
             </div>
             <div className="flex justify-between text-sm mt-2">
               <span className="text-muted-foreground">Service Fee (10%)</span>
-              <span>${calculatedPrices.serviceFee.toFixed(2)}</span>
+              <span>{formatRupiah(calculatedPrices.serviceFee)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Tax (5%)</span>
-              <span>${calculatedPrices.tax.toFixed(2)}</span>
+              <span>{formatRupiah(calculatedPrices.tax)}</span>
             </div>
           </div>
 
           <div className="border-t pt-2">
             <div className="flex justify-between text-lg font-bold">
               <span>Total</span>
-              <span>${calculatedPrices.total.toFixed(2)}</span>
+              <span>{formatRupiah(calculatedPrices.total)}</span>
             </div>
             <div className="text-xs text-muted-foreground text-right mt-1">
-              ${(calculatedPrices.total / itinerary.numberOfPeople).toFixed(2)} per person
+              {formatRupiah(calculatedPrices.total / itinerary.numberOfPeople)} per person
             </div>
           </div>
         </CardContent>
