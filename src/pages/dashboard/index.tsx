@@ -9,6 +9,7 @@ import GlassCard from '@/components/ui/glass-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import Footer from '@/components/landing/footer';
 import { formatRupiah } from '@/lib/utils';
 
 const Dashboard = () => {
