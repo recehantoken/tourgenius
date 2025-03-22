@@ -1,69 +1,73 @@
-# Welcome to your Lovable project
+# TourGenius
 
-## Project info
+**Your Travel Companion** 🌍✈️
 
-**URL**: https://lovable.dev/projects/4b48a47e-072f-4d0f-b904-366d55283059
+## Live Demo
 
-## How can I edit this code?
+Explore the live application: [TourGenius](https://tourgenius.vercel.app/)
 
-There are several ways of editing your application.
+## Overview
 
-**Use Lovable**
+**TourGenius** leverages to assist travelers in planning seamless journeys. From personalized itineraries to insightful destination information, TourGenius ensures a smarter travel experience.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4b48a47e-072f-4d0f-b904-366d55283059) and start prompting.
+## Features
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Intelligent Destination Recommendations**: Receive suggestions tailored to your preferences.
+- **Custom Itinerary Planning**: Generate travel plans that align with your interests and schedule.
+- **Comprehensive Travel Insights**: Access information on local cultures, cuisines, and hidden attractions.
+- **User-Friendly Interface**: Enjoy a responsive design optimized for both desktop and mobile platforms.
 
-**Use your preferred IDE**
+## Technology Stack
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Frontend**: [Next.js](https://nextjs.org/), [React](https://reactjs.org/), [Tailwind CSS](https://tailwindcss.com/)
+- **Backend**: [Node.js](https://nodejs.org/), [Express](https://expressjs.com/), [OpenAI API](https://openai.com/api/)
+- **Hosting**: [Vercel](https://vercel.com/)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Installation & Setup
 
-Follow these steps:
+To run TourGenius locally:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/tourgenius.git
+   cd tourgenius
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. **Start the development server**:
+   ```bash
+   npm run dev
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+   Access the application at `http://localhost:3000/`.
 
-**Edit a file directly in GitHub**
+## Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+We welcome contributions! To contribute:
 
-**Use GitHub Codespaces**
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/YourFeature`).
+3. Commit your changes (`git commit -m 'Add YourFeature'`).
+4. Push to the branch (`git push origin feature/YourFeature`).
+5. Open a Pull Request.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Please ensure your code adheres to our coding standards and includes relevant tests.
 
-## What technologies are used for this project?
+## License
 
-This project is built with .
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Contact
 
-## How can I deploy this project?
+For inquiries or support:
 
-Simply open [Lovable](https://lovable.dev/projects/4b48a47e-072f-4d0f-b904-366d55283059) and click on Share -> Publish.
+- **Email**: [support@tourgenius.com](mailto:support@tourgenius.com)
+- **GitHub**: [https://github.com/yourusername/tourgenius](https://github.com/yourusername/tourgenius)
 
-## I want to use a custom domain - is that possible?
+---
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+*Empowering your travels with intelligence and ease.* 
