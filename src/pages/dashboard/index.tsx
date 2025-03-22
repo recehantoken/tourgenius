@@ -115,7 +115,7 @@ const Dashboard = () => {
                     <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
                     <p className="text-2xl font-bold mt-1">{stat.value}</p>
                   </div>
-                  <div className={`p-2.5 rounded-full bg-opacity-10 ${stat.color.replace('text-', 'bg-')}`}>
+                  <div className={`p-2.5 rounded-full bg-opacity-50 ${stat.color.replace('text-', 'bg-')}`}>
                     <div className={stat.color}>{stat.icon}</div>
                   </div>
                 </div>
