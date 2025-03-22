@@ -141,7 +141,7 @@ const CustomerManagement = () => {
         </div>
       </div>
       
-      <div className="border border-white/5 rounded-md overflow-hidden">
+      <div className="space-y-6 bg-batik-dark/20 p-6 rounded-lg text-white [&_*]:text-white">
         <Table>
           <TableHeader className="bg-batik-dark/60">
             <TableRow className="hover:bg-batik-dark/80 border-white/5">
