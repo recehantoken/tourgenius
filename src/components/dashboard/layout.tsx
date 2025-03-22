@@ -80,12 +80,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen flex bg-muted/30">
+    <div className="min-h-screen flex bg-batik-dark bg-opacity-95 batik-overlay">
       {/* Sidebar */}
       <aside 
         className={`fixed inset-y-0 left-0 z-40 lg:relative transition-all duration-300 transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:w-20'
-        } w-64 lg:translate-x-0 bg-sidebar border-r border-border flex flex-col`}
+        } w-64 lg:translate-x-0 bg-sidebar border-r border-border/20 flex flex-col`}
       >
         <div className="p-4 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2">
@@ -171,7 +171,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header */}
-        <header className="sticky top-0 z-30 flex items-center bg-background/80 backdrop-blur-md h-16 px-4 border-b border-border lg:hidden">
+        <header className="sticky top-0 z-30 flex items-center bg-batik-dark/90 backdrop-blur-md h-16 px-4 border-b border-border/20 lg:hidden">
           <Button variant="ghost" size="icon" onClick={toggleSidebar}>
             <Menu className="h-5 w-5" />
           </Button>
@@ -181,7 +181,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Overlay for mobile */}
         {isMobile && isSidebarOpen && (
           <div 
-            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 lg:hidden"
             onClick={toggleSidebar}
           />
         )}
