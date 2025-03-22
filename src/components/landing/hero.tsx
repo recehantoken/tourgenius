@@ -34,9 +34,9 @@ const Hero = () => {
                   </Button>
                 </Link>
                 <Link to="/#features">
-                  <Button size="lg" variant="outline">
-                    Learn More
-                  </Button>
+                <Button size="lg" variant="outline" className="text-blue-600">
+                  Learn More
+                </Button>
                 </Link>
               </div>
             </div>

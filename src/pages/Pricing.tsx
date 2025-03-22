@@ -4,9 +4,38 @@ import { Button } from '@/components/ui/button';
 
 const Pricing = () => {
   const plans = [
-    { name: 'Basic', price: 'IDR 150,000', features: ['1 User', '5 Itineraries', 'Email Support'] },
-    { name: 'Pro', price: 'IDR 350,000', features: ['5 Users', 'Unlimited Itineraries', 'Priority Support'] },
-    { name: 'Enterprise', price: 'Contact Us', features: ['Unlimited Users', 'Custom Features', 'Dedicated Support'] },
+    {
+      name: 'Basic',
+      price: 'IDR 150,000/mo',
+      features: [
+        '1 User Account',
+        'Up to 5 Itineraries per Month',
+        'Standard Email Support (48-hour response)',
+        'Basic Invoice Templates',
+      ],
+    },
+    {
+      name: 'Pro',
+      price: 'IDR 350,000/mo',
+      features: [
+        'Up to 5 User Accounts',
+        'Unlimited Itineraries',
+        'Priority Email & Chat Support (24-hour response)',
+        'Advanced Invoice Customization',
+        'Real-Time Collaboration Tools',
+      ],
+    },
+    {
+      name: 'Enterprise',
+      price: 'Contact Us',
+      features: [
+        'Unlimited User Accounts',
+        'Custom Itinerary & Invoice Features',
+        'Dedicated Account Manager',
+        '24/7 Phone & Priority Support',
+        'API Access for Integration',
+      ],
+    },
   ];
 
   return (
@@ -14,7 +43,7 @@ const Pricing = () => {
       <div className="container mx-auto">
         <h1 className="text-4xl font-bold text-amber-700 mb-8 text-center">Pricing</h1>
         <p className="text-gray-600 mb-12 text-center max-w-2xl mx-auto">
-          Choose a plan that fits your tour planning needs. All plans are billed monthly.
+          Select a plan tailored to your tour business needs. From solo operators to large agencies, TourGenius offers scalable solutions with transparent pricing.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map((plan, index) => (
@@ -32,7 +61,7 @@ const Pricing = () => {
               </CardContent>
               <CardFooter>
                 <Button className="w-full bg-amber-400 text-gray-900 hover:bg-amber-500">
-                  {plan.name === 'Enterprise' ? 'Contact Sales' : 'Get Started'}
+                  {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Now'}
                 </Button>
               </CardFooter>
             </Card>

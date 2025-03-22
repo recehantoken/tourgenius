@@ -3,9 +3,21 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const Testimonials = () => {
   const testimonials = [
-    { name: 'John Doe', role: 'Tour Operator', text: 'TourGenius transformed how I plan trips—efficient and user-friendly!' },
-    { name: 'Jane Smith', role: 'Travel Agent', text: 'The invoicing feature saved me hours of work every week.' },
-    { name: 'Alex Lee', role: 'Guide', text: 'Collaboration with my team has never been easier.' },
+    {
+      name: 'Johnathan Miller',
+      role: 'Senior Tour Operator, Bali Adventures',
+      text: 'TourGenius has revolutionized our workflow. The intuitive itinerary builder and automated invoicing have cut our planning time in half, allowing us to focus on delivering exceptional experiences for our clients.',
+    },
+    {
+      name: 'Sofia Reyes',
+      role: 'Travel Agency Owner, Java Journeys',
+      text: 'The real-time collaboration feature is a game-changer. My team can now coordinate seamlessly across multiple projects, and the professional invoices we generate have impressed our corporate clients.',
+    },
+    {
+      name: 'Liam Chen',
+      role: 'Freelance Tour Guide, Sumatra Trails',
+      text: 'As a solo operator, TourGenius gives me the tools to compete with larger firms. The customer management system keeps me organized, and the polished dashboard makes me look professional.',
+    },
   ];
 
   return (
@@ -13,7 +25,7 @@ const Testimonials = () => {
       <div className="container mx-auto">
         <h1 className="text-4xl font-bold text-amber-700 mb-8 text-center">Testimonials</h1>
         <p className="text-gray-600 mb-12 text-center max-w-2xl mx-auto">
-          Hear from tour professionals who trust TourGenius to power their businesses.
+          Discover how TourGenius empowers travel professionals to streamline operations and elevate client experiences.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((testimonial, index) => (
