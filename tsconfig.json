@@ -5,15 +5,29 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": ".", // Base directory for module resolution
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"] // Alias for src directory
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false
+    // Essential settings for React/TypeScript
+    "target": "ESNext", // Modern JavaScript target
+    "module": "ESNext", // Modern module system
+    "jsx": "react-jsx", // Support for React 17+ JSX without importing React
+    "moduleResolution": "node", // Node-style module resolution for npm packages
+    "esModuleInterop": true, // Enables interop between CommonJS and ES Modules
+    "allowSyntheticDefaultImports": true, // Allows default imports from modules without exports default
+
+    // Existing settings (relaxed type checking)
+    "noImplicitAny": false, // Allows implicit any (less strict)
+    "noUnusedParameters": false, // Allows unused parameters
+    "skipLibCheck": true, // Skips type checking of declaration files (faster compilation)
+    "allowJs": true, // Allows JavaScript files
+    "noUnusedLocals": false, // Allows unused local variables
+    "strictNullChecks": false, // Disables strict null checking
+
+    // Additional recommended settings
+    "forceConsistentCasingInFileNames": true, // Enforces consistent file name casing
+    "strict": false, // Disable full strict mode since some strict options are off
+    "lib": ["DOM", "DOM.Iterable", "ESNext"] // Include DOM and modern JS APIs
   }
 }

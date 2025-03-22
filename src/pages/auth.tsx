@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { FcGoogle } from 'react-icons/fc'; // Using react-icons for Google icon
+import { FcGoogle } from 'react-icons/fc';
 import AuthForm from '@/components/auth/auth-form';
 
 const Auth = () => {
@@ -38,12 +38,11 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`, // Redirect to dashboard after login
+          redirectTo: `${window.location.origin}/dashboard`,
         },
       });
       if (error) throw error;
     } catch (error) {
-      console.error('Google login error:', error);
       alert('Failed to sign in with Google. Please try again.');
     }
   };
@@ -58,7 +57,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
       <header className="bg-white p-6 shadow-md">
         <div className="container mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
@@ -69,13 +67,11 @@ const Auth = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 flex items-center justify-center p-6">
         <div className="container mx-auto max-w-md">
           <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-md">
             <h1 className="text-2xl font-bold text-amber-700 mb-6 text-center">Welcome to TourGenius</h1>
             
-            {/* Google Login Button */}
             <Button
               onClick={handleGoogleLogin}
               className="w-full mb-4 bg-white border border-gray-300 text-gray-900 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2"
@@ -84,7 +80,6 @@ const Auth = () => {
               Sign in with Google
             </Button>
 
-            {/* Separator */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
@@ -94,13 +89,11 @@ const Auth = () => {
               </div>
             </div>
 
-            {/* Existing Auth Form */}
             <AuthForm />
           </div>
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="p-6 text-center text-sm text-gray-600">
         <p>© {new Date().getFullYear()} TourGenius. All rights reserved.</p>
       </footer>
