@@ -23,7 +23,7 @@ To run the project locally:
 
 ```sh
 # Clone the repository
-git clone https://github.com/your-username/tourgenius.git
+git clone https://github.com/hoed/tourgenius.git
 cd tourgenius
 
 # Install dependencies
