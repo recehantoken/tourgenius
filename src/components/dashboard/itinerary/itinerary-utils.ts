@@ -4,6 +4,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { TourItinerary, TourGuide } from '@/lib/types';
 import { toast } from 'sonner';
 
+// Function to format currency in Rupiah
+export const formatRupiah = (amount: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(amount);
+};
+
 // Function to format date for Google Calendar
 export const formatDateForGoogleCalendar = (date: string) => {
   if (!date) return '';
@@ -19,7 +28,7 @@ export const saveToGoogleCalendar = (itinerary: TourItinerary) => {
   }
 
   // Find the first and last day to determine event duration
-  const startDate = itinerary.startDate || new Date().toISOString();
+  const startDate = itinerary.start_date || new Date().toISOString();
   const endDate = itinerary.days.length > 1 
     ? new Date(new Date(startDate).setDate(new Date(startDate).getDate() + itinerary.days.length - 1)).toISOString()
     : startDate;

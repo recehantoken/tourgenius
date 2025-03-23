@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/layout';
@@ -73,11 +74,18 @@ const Dashboard = () => {
           return;
         }
         
-        // Parse JSON fields
+        // Parse JSON fields and convert to TourItinerary structure
         const parsedData = data.map(item => ({
-          ...item,
+          id: item.id,
+          name: item.name,
           days: typeof item.days === 'string' ? JSON.parse(item.days) : item.days,
-          tourGuides: typeof item.tour_guides === 'string' ? JSON.parse(item.tour_guides) : item.tour_guides
+          tourGuides: typeof item.tour_guides === 'string' ? JSON.parse(item.tour_guides) : item.tour_guides,
+          totalPrice: item.total_price,
+          numberOfPeople: item.number_of_people,
+          start_date: item.start_date,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          user_id: item.user_id
         }));
         
         setItineraries(parsedData);
@@ -139,8 +147,8 @@ const Dashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <p>{t.numberOfPeople}: {itinerary.number_of_people}</p>
-                  <p>{t.totalPrice}: ${itinerary.total_price}</p>
+                  <p>{t.numberOfPeople}: {itinerary.numberOfPeople}</p>
+                  <p>{t.totalPrice}: ${itinerary.totalPrice}</p>
                   <Button variant="secondary" onClick={() => navigate('/dashboard/itinerary')}>
                     {t.view}
                   </Button>
