@@ -6,7 +6,7 @@ const PrivacyPolicy = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Navbar />
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-6 pt-20"> {/* Added pt-20 */}
         <div className="container mx-auto max-w-3xl">
           <h1 className="text-4xl font-bold text-amber-700 mb-8 text-center">Privacy Policy</h1>
           <div className="prose text-gray-600">
