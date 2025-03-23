@@ -1,73 +1,55 @@
 # TourGenius
 
-**Travel Agent Companion** 🌍✈️
-
-## Live Demo
-
-Explore the live application: [TourGenius](https://tourgenius.vercel.app/)
-
-## Overview
-
-**TourGenius** leverages to assist Travel Agent in planning seamless journeys. From personalized itineraries to insightful destination information, TourGenius ensures a smarter travel experience.
+[TourGenius](https://tourgenius.vercel.app) is a comprehensive application designed specifically for travel agents to streamline tour management. It offers an all-in-one solution for customer management, tour itinerary planning, automatic pricing calculations, invoicing, and seamless integration with Google Calendar for efficient tour scheduling.
 
 ## Features
 
-- **Intelligent Destination Recommendations**: Receive suggestions tailored to your preferences.
-- **Custom Itinerary Planning**: Generate travel plans that align with your interests and schedule.
-- **Comprehensive Travel Insights**: Access information on local cultures, cuisines, and hidden attractions.
-- **User-Friendly Interface**: Enjoy a responsive design optimized for both desktop and mobile platforms.
+- **Customer Management** – Organize and manage customer details effortlessly.
+- **Tour Itinerary Creation** – Plan complete tours, including:
+  - Hotels
+  - Destinations
+  - Meals
+  - Transportation
+  - Tour guides
+- **Automatic Price Calculation** – Compute tour pricing dynamically.
+- **Invoicing System** – Generate invoices with ease.
+- **Google Calendar Integration** – Manage tour schedules efficiently.
 
-## Technology Stack
+## Live Demo
+Experience the app live: [TourGenius](https://tourgenius.vercel.app)
 
-- **Frontend**: [Next.js](https://nextjs.org/), [React](https://reactjs.org/), [Tailwind CSS](https://tailwindcss.com/)
-- **Backend**: [Node.js](https://nodejs.org/), [Express](https://expressjs.com/), [OpenAI API](https://openai.com/api/)
-- **Hosting**: [Vercel](https://vercel.com/)
+## Installation
+To run the project locally:
 
-## Installation & Setup
+```sh
+# Clone the repository
+git clone https://github.com/your-username/tourgenius.git
+cd tourgenius
 
-To run TourGenius locally:
+# Install dependencies
+npm install
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/tourgenius.git
-   cd tourgenius
-   ```
+# Start the development server
+npm run dev
+```
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
-
-   Access the application at `http://localhost:3000/`.
+## Technologies Used
+- React.js
+- Node.js
+- Express.js
+- MongoDB
+- Google Calendar API
 
 ## Contributing
-
-We welcome contributions! To contribute:
-
+We welcome contributions! Please follow these steps:
 1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/YourFeature`).
-3. Commit your changes (`git commit -m 'Add YourFeature'`).
-4. Push to the branch (`git push origin feature/YourFeature`).
-5. Open a Pull Request.
-
-Please ensure your code adheres to our coding standards and includes relevant tests.
+2. Create a new branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -m 'Add new feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Open a pull request.
 
 ## License
-
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Contact
-
-For inquiries or support:
-
-- **Email**: [support@tourgenius.com](mailto:support@tourgenius.com)
-- **GitHub**: [https://github.com/hoed/tourgenius](https://github.com/hoed/tourgenius)
-
----
-
-*Empowering your travels with intelligence and ease.* 
+For inquiries, please contact [your-email@example.com](mailto:your-email@example.com).
