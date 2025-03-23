@@ -9,6 +9,78 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      customers: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      itineraries: {
+        Row: {
+          created_at: string
+          days: Json
+          id: string
+          name: string
+          number_of_people: number
+          start_date: string | null
+          total_price: number
+          tour_guides: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days?: Json
+          id?: string
+          name: string
+          number_of_people?: number
+          start_date?: string | null
+          total_price?: number
+          tour_guides?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days?: Json
+          id?: string
+          name?: string
+          number_of_people?: number
+          start_date?: string | null
+          total_price?: number
+          tour_guides?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,7 @@ import Dashboard from "./pages/dashboard/index";
 import ItineraryPage from "./pages/dashboard/itinerary";
 import InvoicesPage from "./pages/dashboard/invoices";
 import CustomersPage from "./pages/dashboard/customers";
+import SettingsPage from "./pages/dashboard/settings";
 import NotFound from "./pages/NotFound";
 import Features from "./pages/Features";
 import Testimonials from "./pages/Testimonials";
@@ -28,6 +30,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Subscribe to auth state changes FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setIsAuthenticated(!!session);
@@ -35,6 +38,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
+    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
       setLoading(false);
@@ -105,6 +109,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <CustomersPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/settings" 
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
               </ProtectedRoute>
             } 
           />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,8 +34,25 @@ const ItineraryBuilder = () => {
     numberOfPeople: 2
   });
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [isSaving, setIsSaving] = useState(false);
 
-  // [Previous functions remain unchanged]
+  useEffect(() => {
+    const fetchItineraries = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          toast.error('You must be logged in to view itineraries');
+          navigate('/auth');
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching session:', error);
+      }
+    };
+
+    fetchItineraries();
+  }, [navigate]);
+
   const updateItineraryName = (name: string) => {
     setItinerary((prev) => ({ ...prev, name }));
   };
@@ -187,15 +204,63 @@ const ItineraryBuilder = () => {
 
   const saveItinerary = async () => {
     try {
+      setIsSaving(true);
       toast.loading('Saving itinerary...');
-      setTimeout(() => {
-        toast.dismiss();
-        toast.success('Itinerary saved successfully!');
-        navigate('/dashboard/invoices', { state: { itinerary } });
-      }, 1500);
+      
+      let totalPrice = 0;
+      
+      itinerary.days.forEach(day => {
+        day.destinations.forEach(dest => {
+          totalPrice += dest.pricePerPerson * itinerary.numberOfPeople;
+        });
+        
+        if (day.hotel) {
+          totalPrice += day.hotel.pricePerNight;
+        }
+        
+        day.meals.forEach(meal => {
+          totalPrice += meal.pricePerPerson * itinerary.numberOfPeople;
+        });
+        
+        if (day.transportation) {
+          totalPrice += day.transportation.pricePerPerson * itinerary.numberOfPeople;
+        }
+      });
+      
+      itinerary.tourGuides.forEach(guide => {
+        totalPrice += guide.pricePerDay * itinerary.days.length;
+      });
+      
+      const itineraryWithPrice = {
+        ...itinerary,
+        totalPrice
+      };
+
+      const { data, error } = await supabase
+        .from('itineraries')
+        .insert({
+          name: itineraryWithPrice.name,
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          start_date: selectedDate || new Date(),
+          number_of_people: itineraryWithPrice.numberOfPeople,
+          total_price: itineraryWithPrice.totalPrice,
+          days: itineraryWithPrice.days,
+          tour_guides: itineraryWithPrice.tourGuides
+        })
+        .select();
+
+      if (error) throw error;
+      
+      toast.dismiss();
+      toast.success('Itinerary saved successfully!');
+      
+      navigate('/dashboard/invoices', { state: { itinerary: itineraryWithPrice } });
     } catch (error) {
+      console.error('Error saving itinerary:', error);
+      toast.dismiss();
       toast.error('Failed to save itinerary');
-      console.error(error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -205,7 +270,6 @@ const ItineraryBuilder = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      {/* Header - Matching CustomerManagement */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-100 p-6 rounded-xl border border-gray-200 shadow-md">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-clip-text text-transparent animate-gradient">
@@ -223,18 +287,17 @@ const ItineraryBuilder = () => {
           </Button>
           <Button 
             onClick={saveItinerary}
+            disabled={isSaving}
             className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-black transition-all duration-300 hover:scale-105 shadow-md"
           >
             <Save className="h-4 w-4 mr-2" />
-            Save
+            {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Itinerary Builder Section */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Basic Info */}
           <GlassCard className="bg-white border border-gray-200 shadow-md">
             <div className="space-y-6 p-6">
               <div>
@@ -288,7 +351,6 @@ const ItineraryBuilder = () => {
             </div>
           </GlassCard>
 
-          {/* Tour Guides */}
           <GlassCard className="bg-white border border-gray-200 shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-amber-700">
@@ -337,7 +399,6 @@ const ItineraryBuilder = () => {
             </CardContent>
           </GlassCard>
 
-          {/* Day by Day Itinerary */}
           <Tabs defaultValue={itinerary.days[0].id} className="space-y-6">
             <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg border border-gray-200 shadow-md">
               <h2 className="text-xl font-semibold text-amber-700">Day by Day Itinerary</h2>
@@ -383,7 +444,6 @@ const ItineraryBuilder = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-8">
-                    {/* Destinations */}
                     <div>
                       <h3 className="text-lg font-medium mb-3 flex items-center gap-2 text-amber-700">
                         <MapPin className="h-5 w-5" />
@@ -424,7 +484,6 @@ const ItineraryBuilder = () => {
                       </Button>
                     </div>
 
-                    {/* Hotel */}
                     <div>
                       <h3 className="text-lg font-medium mb-3 flex items-center gap-2 text-amber-700">
                         <HotelIcon className="h-5 w-5" />
@@ -468,7 +527,6 @@ const ItineraryBuilder = () => {
                       </Button>
                     </div>
 
-                    {/* Meals */}
                     <div>
                       <h3 className="text-lg font-medium mb-3 flex items-center gap-2 text-amber-700">
                         <Utensils className="h-5 w-5" />
@@ -512,7 +570,6 @@ const ItineraryBuilder = () => {
                       </Button>
                     </div>
 
-                    {/* Transportation */}
                     <div>
                       <h3 className="text-lg font-medium mb-3 flex items-center gap-2 text-amber-700">
                         <Plane className="h-5 w-5" />
@@ -557,7 +614,6 @@ const ItineraryBuilder = () => {
           </Tabs>
         </div>
 
-        {/* Price Calculator */}
         <div className="lg:col-span-1">
           <PriceCalculator itinerary={itinerary} />
         </div>

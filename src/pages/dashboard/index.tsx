@@ -11,55 +11,121 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatRupiah } from '@/lib/utils';
 
+interface Itinerary {
+  id: string;
+  name: string;
+  total_price: number;
+  created_at: string;
+  number_of_people: number;
+  days: any[];
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  created_at: string;
+}
+
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState(null);
-  const [hasItineraries, setHasItineraries] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const [itineraries, setItineraries] = useState<Itinerary[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
-  // Stats data - normally would come from API
-  const stats = [
-    { title: 'Active Tours', value: hasItineraries ? '2' : '0', icon: <Calendar className="h-5 w-5" />, color: 'text-blue-500' },
-    { title: 'Total Revenue', value: hasItineraries ? formatRupiah(24500000) : formatRupiah(0), icon: <DollarSign className="h-5 w-5" />, color: 'text-green-500' },
-    { title: 'Invoices', value: hasItineraries ? '3' : '0', icon: <FileText className="h-5 w-5" />, color: 'text-purple-500' },
-    { title: 'Customers', value: hasItineraries ? '5' : '0', icon: <Users className="h-5 w-5" />, color: 'text-orange-500' },
-  ];
-
-  const recentItineraries = hasItineraries ? [
-    { id: '1', name: 'Bali Explorer', days: 5, price: formatRupiah(24500000), date: '2023-11-15' },
-    { id: '2', name: 'Yogyakarta Adventure', days: 3, price: formatRupiah(12000000), date: '2023-11-10' },
-    { id: '3', name: 'Komodo Island Trek', days: 4, price: formatRupiah(18500000), date: '2023-11-05' },
-  ] : [];
-
-  // Load user data on component mount
   useEffect(() => {
-    async function getUserData() {
+    const fetchData = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user) {
-          setUserData(user);
-          // Store user info in localStorage for the layout component
-          localStorage.setItem('user', JSON.stringify({
-            name: user.email?.split('@')[0] || 'User',
-            email: user.email
-          }));
-          
-          // Check if user has saved any itineraries
-          // For demo purposes, we're using localStorage, but in a real app
-          // you would fetch this from a database
-          const savedItineraries = localStorage.getItem('savedItineraries');
-          setHasItineraries(!!savedItineraries);
+        // Get user session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          toast.error('Session expired. Please login again.');
+          return;
         }
+
+        // Set user data
+        setUserData(session.user);
+        
+        // Store user info in localStorage for the layout component
+        localStorage.setItem('user', JSON.stringify({
+          name: session.user.email?.split('@')[0] || 'User',
+          email: session.user.email
+        }));
+
+        // Fetch itineraries
+        const { data: itineraryData, error: itineraryError } = await supabase
+          .from('itineraries')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (itineraryError) throw itineraryError;
+        
+        setItineraries(itineraryData || []);
+        
+        // Calculate total revenue
+        const revenue = itineraryData ? itineraryData.reduce((sum, item) => sum + Number(item.total_price), 0) : 0;
+        setTotalRevenue(revenue);
+
+        // Fetch customers
+        const { data: customerData, error: customerError } = await supabase
+          .from('customers')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (customerError) throw customerError;
+        
+        setCustomers(customerData || []);
       } catch (error) {
-        console.error('Error fetching user data:', error);
-        toast.error('Failed to load user data');
+        console.error('Error fetching data:', error);
+        toast.error('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    getUserData();
+    fetchData();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_OUT') {
+          window.location.href = '/auth';
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Stats data based on actual data
+  const stats = [
+    { 
+      title: 'Active Tours', 
+      value: itineraries.length.toString(), 
+      icon: <Calendar className="h-5 w-5" />, 
+      color: 'text-blue-500' 
+    },
+    { 
+      title: 'Total Revenue', 
+      value: formatRupiah(totalRevenue), 
+      icon: <DollarSign className="h-5 w-5" />, 
+      color: 'text-green-500' 
+    },
+    { 
+      title: 'Invoices', 
+      value: itineraries.length.toString(), 
+      icon: <FileText className="h-5 w-5" />, 
+      color: 'text-purple-500' 
+    },
+    { 
+      title: 'Customers', 
+      value: customers.length.toString(), 
+      icon: <Users className="h-5 w-5" />, 
+      color: 'text-orange-500' 
+    },
+  ];
 
   if (loading) {
     return (
@@ -89,7 +155,6 @@ const Dashboard = () => {
   }
 
   return (
-
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in">
         <div className="flex items-center justify-between">
@@ -133,9 +198,9 @@ const Dashboard = () => {
               <CardDescription>Your recently created tour plans</CardDescription>
             </CardHeader>
             <CardContent>
-              {recentItineraries.length > 0 ? (
+              {itineraries.length > 0 ? (
                 <div className="space-y-4">
-                  {recentItineraries.map((itinerary) => (
+                  {itineraries.slice(0, 3).map((itinerary) => (
                     <div
                       key={itinerary.id}
                       className="p-4 border border-white/5 rounded-md hover:bg-white/5 transition-colors flex items-center justify-between"
@@ -143,12 +208,14 @@ const Dashboard = () => {
                       <div>
                         <h3 className="font-medium text-white">{itinerary.name}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {itinerary.days} days · Created on {itinerary.date}
+                          {itinerary.days.length} days · Created on {new Date(itinerary.created_at).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="font-medium text-batik-gold">{itinerary.price}</span>
-                        <Button variant="outline" size="sm" className="border-batik-gold/50 text-batik-gold hover:bg-batik-gold/10">View</Button>
+                        <span className="font-medium text-batik-gold">{formatRupiah(itinerary.total_price)}</span>
+                        <Link to="/dashboard/invoices" state={{ itineraryId: itinerary.id }}>
+                          <Button variant="outline" size="sm" className="border-batik-gold/50 text-batik-gold hover:bg-batik-gold/10">View</Button>
+                        </Link>
                       </div>
                     </div>
                   ))}
@@ -168,9 +235,9 @@ const Dashboard = () => {
                   </Link>
                 </div>
               )}
-              {hasItineraries && (
+              {itineraries.length > 0 && (
                 <div className="mt-4 text-center">
-                  <Link to="/dashboard/itinerary">
+                  <Link to="/dashboard/invoices">
                     <Button variant="outline" className="border-batik-gold/50 text-batik-gold hover:bg-batik-gold/10">View All Itineraries</Button>
                   </Link>
                 </div>
@@ -213,9 +280,7 @@ const Dashboard = () => {
           </GlassCard>
         </div>
       </div>
-      
     </DashboardLayout>
-
   );
 };
 
