@@ -13,7 +13,8 @@ import {
   Settings, 
   User,
   Users,
-  X 
+  X,
+  Globe
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
@@ -26,6 +27,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [language, setLanguage] = useState<'id' | 'en'>('en');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,6 +38,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       setUser(JSON.parse(userData));
     } else {
       navigate('/auth');
+    }
+
+    // Get language preference
+    const savedLanguage = localStorage.getItem('language') as 'id' | 'en';
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
     }
 
     // Check if mobile
@@ -57,7 +65,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('user');
-    toast.success('Logged out successfully!');
+    toast.success(language === 'id' ? 'Berhasil keluar!' : 'Logged out successfully!');
     navigate('/');
   };
 
@@ -65,12 +73,42 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const toggleLanguage = () => {
+    const newLanguage = language === 'en' ? 'id' : 'en';
+    setLanguage(newLanguage);
+    localStorage.setItem('language', newLanguage);
+    toast.success(newLanguage === 'id' ? 'Bahasa diubah ke Indonesia' : 'Language changed to English');
+  };
+
+  const translations = {
+    en: {
+      dashboard: 'Dashboard',
+      itinerary: 'Itinerary',
+      invoices: 'Invoices',
+      customers: 'Customers',
+      settings: 'Settings',
+      logout: 'Logout',
+      tourGenius: 'TourGenius'
+    },
+    id: {
+      dashboard: 'Dasbor',
+      itinerary: 'Rencana Perjalanan',
+      invoices: 'Faktur',
+      customers: 'Pelanggan',
+      settings: 'Pengaturan',
+      logout: 'Keluar',
+      tourGenius: 'TourGenius'
+    }
+  };
+
+  const t = translations[language];
+
   const navItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: <Home className="h-5 w-5" /> },
-    { path: '/dashboard/itinerary', label: 'Itinerary', icon: <Calendar className="h-5 w-5" /> },
-    { path: '/dashboard/invoices', label: 'Invoices', icon: <FileText className="h-5 w-5" /> },
-    { path: '/dashboard/customers', label: 'Customers', icon: <Users className="h-5 w-5" /> },
-    { path: '/dashboard/settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
+    { path: '/dashboard', label: t.dashboard, icon: <Home className="h-5 w-5" /> },
+    { path: '/dashboard/itinerary', label: t.itinerary, icon: <Calendar className="h-5 w-5" /> },
+    { path: '/dashboard/invoices', label: t.invoices, icon: <FileText className="h-5 w-5" /> },
+    { path: '/dashboard/customers', label: t.customers, icon: <Users className="h-5 w-5" /> },
+    { path: '/dashboard/settings', label: t.settings, icon: <Settings className="h-5 w-5" /> },
   ];
   
   const isActivePath = (path: string) => {
@@ -91,7 +129,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="p-4 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2">
             {isSidebarOpen && (
-              <span className="text-xl font-bold">TourGenius</span>
+              <span className="text-xl font-bold">{t.tourGenius}</span>
             )}
             {!isSidebarOpen && (
               <span className="text-xl font-bold">TG</span>
@@ -139,6 +177,18 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Separator />
         
         <div className="p-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleLanguage}
+            className="mb-4 w-full flex items-center justify-center gap-2"
+          >
+            <Globe className="h-4 w-4" />
+            {isSidebarOpen && (
+              <span>{language === 'en' ? 'Bahasa Indonesia' : 'English'}</span>
+            )}
+          </Button>
+          
           {user && (
             <div className="flex items-center gap-3 mb-4">
               <Avatar>
@@ -164,7 +214,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             className={`${isSidebarOpen ? 'w-full' : 'w-10 h-10'}`}
           >
             <LogOut className="h-4 w-4" />
-            {isSidebarOpen && <span className="ml-2">Logout</span>}
+            {isSidebarOpen && <span className="ml-2">{t.logout}</span>}
           </Button>
         </div>
       </aside>
@@ -173,10 +223,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header */}
         <header className="sticky top-0 z-30 flex items-center bg-batik-dark/90 backdrop-blur-md h-16 px-4 border-b border-border/20 lg:hidden">
-          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-white">
             <Menu className="h-5 w-5" />
           </Button>
-          <div className="ml-4 font-bold">TourGenius</div>
+          <div className="ml-4 font-bold text-white">{t.tourGenius}</div>
         </header>
 
         {/* Overlay for mobile */}
