@@ -52,4 +52,4 @@ We welcome contributions! Please follow these steps:
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Contact
-For inquiries, please contact [your-email@example.com](mailto:your-email@example.com).
+For inquiries, please contact [beyourtour@gmail.com](mailto:beyourtour@gmail.com).
