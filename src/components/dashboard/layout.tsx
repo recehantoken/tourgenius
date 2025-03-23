@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -62,11 +62,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user');
-    toast.success(language === 'id' ? 'Berhasil keluar!' : 'Logged out successfully!');
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      localStorage.removeItem('user');
+      toast.success(language === 'id' ? 'Berhasil keluar!' : 'Logged out successfully!');
+      navigate('/auth');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      toast.error(language === 'id' ? 'Gagal keluar. Silakan coba lagi.' : 'Failed to log out. Please try again.');
+    }
   };
 
   const toggleSidebar = () => {

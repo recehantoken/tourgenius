@@ -1,172 +1,118 @@
 
-import { DayItinerary, Destination, Hotel, Meal, TourGuide, Transportation, TourItinerary } from '@/lib/types';
-import { toast } from 'sonner';
+import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
+import { TourItinerary, TourGuide } from '@/lib/types';
+import { toast } from 'sonner';
 
-export const formatRupiah = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', { 
-    style: 'currency', 
-    currency: 'IDR', 
-    minimumFractionDigits: 0 
-  }).format(amount);
+// Function to format date for Google Calendar
+export const formatDateForGoogleCalendar = (date: string) => {
+  if (!date) return '';
+  const formattedDate = format(new Date(date), 'yyyyMMdd');
+  return formattedDate;
 };
 
-export const saveToGoogleCalendar = async (itinerary: TourItinerary) => {
-  try {
-    toast.loading('Menyiapkan data untuk Google Calendar...');
-    
-    // Format dates for Google Calendar
-    const startDate = itinerary.days[0]?.date || new Date();
-    const endDate = itinerary.days[itinerary.days.length - 1]?.date || new Date();
-    
-    // Create event details
-    const eventTitle = `Tour: ${itinerary.name}`;
-    const eventDetails = createEventDetails(itinerary);
-    const encodedTitle = encodeURIComponent(eventTitle);
-    const encodedDetails = encodeURIComponent(eventDetails);
-    
-    // Format dates for URL
-    const formatDate = (date: Date) => {
-      if (!(date instanceof Date)) {
-        date = new Date(date);
-      }
-      
-      return date.toISOString().replace(/-|:|\.\d+/g, '');
-    };
-    
-    const startDateStr = formatDate(new Date(startDate));
-    const endDateStr = formatDate(new Date(endDate));
-    
-    // Construct Google Calendar URL
-    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodedTitle}&details=${encodedDetails}&dates=${startDateStr}/${endDateStr}`;
-    
-    // Open in new tab
-    window.open(googleCalendarUrl, '_blank');
-    
-    toast.dismiss();
-    toast.success('Google Calendar terbuka di tab baru!');
-  } catch (error) {
-    toast.error('Gagal menyimpan ke Google Calendar');
-    console.error(error);
+// Function to save to Google Calendar
+export const saveToGoogleCalendar = (itinerary: TourItinerary) => {
+  if (!itinerary || !itinerary.days || itinerary.days.length === 0) {
+    toast.error('No itinerary data to save to calendar');
+    return;
   }
-};
 
-// Helper function to create event details
-const createEventDetails = (itinerary: TourItinerary): string => {
-  let details = `${itinerary.name}\n\n`;
-  details += `Jumlah orang: ${itinerary.numberOfPeople}\n`;
-  details += `Total biaya: ${formatRupiah(calculateTotalPrice(itinerary))}\n\n`;
-  
-  // Add days information
+  // Find the first and last day to determine event duration
+  const startDate = itinerary.startDate || new Date().toISOString();
+  const endDate = itinerary.days.length > 1 
+    ? new Date(new Date(startDate).setDate(new Date(startDate).getDate() + itinerary.days.length - 1)).toISOString()
+    : startDate;
+
+  // Create summary of the itinerary
+  const title = encodeURIComponent(`Tour Itinerary: ${itinerary.name}`);
+  let details = encodeURIComponent(`${itinerary.name}\n\nItinerary Details:\n`);
+
   itinerary.days.forEach((day, index) => {
-    details += `Hari ${index + 1}:\n`;
+    details += encodeURIComponent(`Day ${index + 1}:\n`);
     
     // Add destinations
-    if (day.destinations.length > 0) {
-      details += "Destinasi:\n";
-      day.destinations.forEach(dest => {
-        details += `- ${dest.name}: ${formatRupiah(dest.pricePerPerson)}/orang\n`;
-      });
+    if (day.destinations && day.destinations.length > 0) {
+      details += encodeURIComponent(`Destinations: ${day.destinations.join(', ')}\n`);
     }
     
     // Add hotel
     if (day.hotel) {
-      details += `Hotel: ${day.hotel.name} - ${formatRupiah(day.hotel.pricePerNight)}/malam\n`;
+      details += encodeURIComponent(`Hotel: ${day.hotel}\n`);
     }
     
     // Add meals
-    if (day.meals.length > 0) {
-      details += "Makanan:\n";
-      day.meals.forEach(meal => {
-        details += `- ${meal.type}: ${meal.name} - ${formatRupiah(meal.pricePerPerson)}/orang\n`;
-      });
+    if (day.meals && day.meals.length > 0) {
+      const meals = day.meals.map(meal => {
+        if (typeof meal === 'string') {
+          return meal;
+        } else if (meal && typeof meal === 'object' && 'type' in meal) {
+          return meal.type;
+        }
+        return '';
+      }).filter(Boolean);
+      
+      if (meals.length > 0) {
+        details += encodeURIComponent(`Meals: ${meals.join(', ')}\n`);
+      }
     }
     
-    // Add transportation
-    if (day.transportation) {
-      details += `Transportasi: ${day.transportation.type} - ${formatRupiah(day.transportation.pricePerPerson)}/orang\n`;
-    }
-    
-    details += "\n";
+    details += encodeURIComponent('\n');
   });
-  
-  // Add tour guides
-  if (itinerary.tourGuides.length > 0) {
-    details += "Pemandu Wisata:\n";
-    itinerary.tourGuides.forEach(guide => {
-      details += `- ${guide.name} - ${formatRupiah(guide.pricePerDay)}/hari\n`;
-    });
-  }
-  
-  return details;
+
+  // Format dates for Google Calendar
+  const formattedStartDate = formatDateForGoogleCalendar(startDate);
+  const formattedEndDate = formatDateForGoogleCalendar(endDate);
+
+  // Create Google Calendar URL
+  const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formattedStartDate}/${formattedEndDate}&details=${details}`;
+
+  // Open in a new tab
+  window.open(googleCalendarUrl, '_blank');
 };
 
+// Function to save itinerary to Supabase
 export const saveItineraryToSupabase = async (
   itinerary: TourItinerary, 
-  selectedDate: Date | undefined,
-  navigate: (path: string, options?: { state: { itinerary: TourItinerary } }) => void
+  selectedDate: Date | undefined, 
+  navigate: any
 ) => {
   try {
-    toast.loading('Menyimpan rencana perjalanan...');
+    // Get current user
+    const { data: { session } } = await supabase.auth.getSession();
     
-    let totalPrice = calculateTotalPrice(itinerary);
-    
-    const itineraryWithPrice = {
-      ...itinerary,
-      totalPrice
+    if (!session?.user) {
+      toast.error('You must be logged in to save an itinerary');
+      navigate('/auth');
+      return;
+    }
+
+    // Format data for DB
+    const itineraryData = {
+      user_id: session.user.id,
+      name: itinerary.name,
+      start_date: selectedDate ? selectedDate.toISOString() : null,
+      number_of_people: itinerary.numberOfPeople,
+      days: JSON.stringify(itinerary.days),
+      tour_guides: JSON.stringify(itinerary.tourGuides),
+      total_price: itinerary.totalPrice
     };
-
-    const { data, error } = await supabase
+    
+    // Save to DB
+    const { error } = await supabase
       .from('itineraries')
-      .insert({
-        name: itineraryWithPrice.name,
-        user_id: (await supabase.auth.getUser()).data.user?.id,
-        start_date: selectedDate || new Date(),
-        number_of_people: itineraryWithPrice.numberOfPeople,
-        total_price: itineraryWithPrice.totalPrice,
-        days: itineraryWithPrice.days,
-        tour_guides: itineraryWithPrice.tourGuides
-      })
-      .select();
-
-    if (error) throw error;
+      .insert([itineraryData]);
     
-    toast.dismiss();
-    toast.success('Rencana perjalanan berhasil disimpan!');
+    if (error) {
+      console.error('Error saving itinerary:', error);
+      toast.error('Failed to save itinerary');
+      return;
+    }
     
-    navigate('/dashboard/invoices', { state: { itinerary: itineraryWithPrice } });
+    toast.success('Itinerary saved successfully!');
+    
   } catch (error) {
-    console.error('Error saving itinerary:', error);
-    toast.dismiss();
-    toast.error('Gagal menyimpan rencana perjalanan');
-    throw error;
+    console.error('Error in saveItineraryToSupabase:', error);
+    toast.error('An error occurred while saving the itinerary');
   }
-};
-
-export const calculateTotalPrice = (itinerary: TourItinerary): number => {
-  let totalPrice = 0;
-  
-  itinerary.days.forEach(day => {
-    day.destinations.forEach(dest => {
-      totalPrice += dest.pricePerPerson * itinerary.numberOfPeople;
-    });
-    
-    if (day.hotel) {
-      totalPrice += day.hotel.pricePerNight;
-    }
-    
-    day.meals.forEach(meal => {
-      totalPrice += meal.pricePerPerson * itinerary.numberOfPeople;
-    });
-    
-    if (day.transportation) {
-      totalPrice += day.transportation.pricePerPerson * itinerary.numberOfPeople;
-    }
-  });
-  
-  itinerary.tourGuides.forEach(guide => {
-    totalPrice += guide.pricePerDay * itinerary.days.length;
-  });
-  
-  return totalPrice;
 };

@@ -58,7 +58,7 @@ const SettingsPage = () => {
       await supabase.auth.signOut();
       localStorage.removeItem('user');
       toast.success('Logged out successfully!');
-      navigate('/auth');
+      navigate('/auth'); // Redirect to auth page
     } catch (error) {
       console.error('Error logging out:', error);
       toast.error('Failed to log out');
