@@ -27,18 +27,46 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [language, setLanguage] = useState<'id' | 'en'>('en');
+  const [isLoading, setIsLoading] = useState(true);
+  const [language, setLanguage] = useState<'id' | 'en'>(
+    localStorage.getItem('language') as 'id' | 'en' || 'en'
+  );
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Get user from localStorage
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    } else {
-      navigate('/auth');
-    }
+    let mounted = true;
+    
+    const initializeUser = async () => {
+      try {
+        // Get session from Supabase
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          navigate('/auth');
+          return;
+        }
+        
+        // Get user from session
+        const userData = {
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+          email: session.user.email || ''
+        };
+        
+        if (mounted) {
+          setUser(userData);
+          // Store in localStorage for future use
+          localStorage.setItem('user', JSON.stringify(userData));
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error loading user:', error);
+        if (mounted) {
+          setIsLoading(false);
+          navigate('/auth');
+        }
+      }
+    };
 
     // Get language preference
     const savedLanguage = localStorage.getItem('language') as 'id' | 'en';
@@ -58,8 +86,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
+    initializeUser();
     
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      mounted = false;
+      window.removeEventListener('resize', checkMobile);
+    };
   }, [navigate]);
 
   const handleLogout = async () => {
@@ -123,6 +155,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return location.pathname.startsWith(path) && path !== '/dashboard';
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-batik-dark bg-opacity-95 batik-overlay">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-400"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex bg-batik-dark bg-opacity-95 batik-overlay">
       {/* Sidebar */}
@@ -134,17 +174,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="p-4 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2">
             {isSidebarOpen && (
-              <span className="text-xl font-bold">{t.tourGenius}</span>
+              <span className="text-xl font-bold text-white">{t.tourGenius}</span>
             )}
             {!isSidebarOpen && (
-              <span className="text-xl font-bold">TG</span>
+              <span className="text-xl font-bold text-white">TG</span>
             )}
           </Link>
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="lg:flex hidden"
+            className="lg:flex hidden text-white"
           >
             <Menu className="h-5 w-5" />
           </Button>
@@ -153,7 +193,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="lg:hidden"
+              className="lg:hidden text-white"
             >
               <X className="h-5 w-5" />
             </Button>

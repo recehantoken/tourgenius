@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -10,31 +11,36 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
   useEffect(() => {
+    // Set up auth state change listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (session?.user) {
+        if (session?.user && initialCheckDone) {
           navigate('/dashboard');
-        } else {
+        } else if (initialCheckDone) {
           setLoading(false);
         }
       }
     );
 
+    // Then check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         navigate('/dashboard');
       } else {
         setLoading(false);
       }
+      setInitialCheckDone(true);
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, initialCheckDone]);
 
   const handleGoogleLogin = async () => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -44,6 +50,7 @@ const Auth = () => {
       if (error) throw error;
     } catch (error) {
       alert('Failed to sign in with Google. Please try again.');
+      setLoading(false);
     }
   };
 

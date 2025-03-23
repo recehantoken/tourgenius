@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { TourItinerary } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -52,7 +53,11 @@ const Dashboard = () => {
   const t = translations[language];
 
   useEffect(() => {
+    let mounted = true;
+    
     const fetchItineraries = async () => {
+      if (!mounted) return;
+      
       setLoading(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -88,16 +93,24 @@ const Dashboard = () => {
           user_id: item.user_id
         }));
         
-        setItineraries(parsedData);
+        if (mounted) {
+          setItineraries(parsedData);
+          setLoading(false);
+        }
       } catch (error) {
         console.error('Dashboard error:', error);
-        toast.error('An error occurred while loading the dashboard');
-      } finally {
-        setLoading(false);
+        if (mounted) {
+          toast.error('An error occurred while loading the dashboard');
+          setLoading(false);
+        }
       }
     };
     
     fetchItineraries();
+    
+    return () => {
+      mounted = false;
+    };
   }, [navigate]);
 
   const handleCreateItinerary = () => {
@@ -122,15 +135,16 @@ const Dashboard = () => {
         {loading ? (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {[...Array(3)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
+              <Card key={i} className="bg-gray-100 border-gray-200 shadow-md">
                 <CardHeader>
-                  <CardTitle className="h-6 bg-gray-300 rounded-md w-3/4"></CardTitle>
-                  <CardDescription className="h-4 bg-gray-200 rounded-md mt-2 w-1/2"></CardDescription>
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2" />
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    <div className="h-4 bg-gray-200 rounded-md w-full"></div>
-                    <div className="h-4 bg-gray-200 rounded-md w-3/4"></div>
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-8 w-24 mt-2" />
                   </div>
                 </CardContent>
               </Card>

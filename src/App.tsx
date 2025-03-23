@@ -31,7 +31,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Subscribe to auth state changes FIRST
+    // Set up auth state listener FIRST before checking session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'SIGNED_OUT') {
@@ -39,14 +39,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           navigate('/auth');
         }
         setIsAuthenticated(!!session);
-        setLoading(false);
+        
+        // Don't set loading to false here to avoid flashing
+        // Only set loading to false after both checks are done
       }
     );
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
-      setLoading(false);
+      setLoading(false); // Only set loading to false after session check
     });
 
     return () => subscription.unsubscribe();
@@ -54,8 +56,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-400"></div>
       </div>
     );
   }
